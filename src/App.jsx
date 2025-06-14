@@ -5,7 +5,12 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Backlog from './pages/Backlog';
 import Task from './pages/Task';
+import Reports from './pages/Reports';
+import Projects from './pages/Projects';
 import { AuthProvider } from './context/AuthContext';
+import { CreateProvider } from './context/CreateContext';
+import { SidebarProvider } from './context/SidebarContext';
+import { ProjectProvider } from './context/ProjectContext';
 
 const theme = createTheme({
   palette: {
@@ -22,16 +27,24 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/backlog" element={<Backlog />} />
-            <Route path="/task/:id" element={<Task />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </Router>
+        <CreateProvider>
+          <SidebarProvider>
+            <ProjectProvider>
+              <Router>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/backlog" element={<Backlog />} />
+                  <Route path="/task/:id" element={<Task />} />
+                  <Route path="/reports" element={<Reports />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </Router>
+            </ProjectProvider>
+          </SidebarProvider>
+        </CreateProvider>
       </AuthProvider>
     </ThemeProvider>
   );
