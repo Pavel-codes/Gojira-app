@@ -16,12 +16,16 @@ import {
 const priorities = ['Low', 'Medium', 'High', 'Critical'];
 const statuses = ['To Do', 'In Progress', 'Done'];
 
-function TaskModal({ open, onClose, onSave, task }) {
+function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         priority: 'Medium',
         status: 'todo',
+        project: '',
+        parentTask: '',
+        createdBy: '',
+        assignedTo: '',
     });
 
     useEffect(() => {
@@ -29,6 +33,12 @@ function TaskModal({ open, onClose, onSave, task }) {
             setFormData({
                 ...task,
                 status: task.status || 'todo',
+                creationDate: task.creationDate || new Date().toISOString(),
+                dueDate: task.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                project: task.project || '',
+                parentTask: task.parentTask || '',
+                createdBy: task.createdBy || '',
+                assignedTo: task.assignedTo || '',
             });
         } else {
             setFormData({
@@ -36,6 +46,12 @@ function TaskModal({ open, onClose, onSave, task }) {
                 description: '',
                 priority: 'Medium',
                 status: 'todo',
+                creationDate: new Date().toISOString(),
+                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                project: '',
+                parentTask: '',
+                createdBy: '',
+                assignedTo: '',
             });
         }
     }, [task]);
@@ -53,9 +69,8 @@ function TaskModal({ open, onClose, onSave, task }) {
         const statusMap = {
             'To Do': 'todo',
             'In Progress': 'inProgress',
-            'Done': 'done'
+            'Done': 'done',
         };
-
         onSave({
             ...formData,
             status: statusMap[formData.status] || formData.status,
@@ -76,6 +91,53 @@ function TaskModal({ open, onClose, onSave, task }) {
                             required
                             fullWidth
                         />
+                        <TextField
+                            name="project"
+                            label="Project"
+                            value={formData.project}
+                            onChange={handleChange}
+                            fullWidth
+                        />
+                        <FormControl fullWidth>
+                            <InputLabel>Parent Task</InputLabel>
+                            <Select
+                                name="parentTask"
+                                value={formData.parentTask}
+                                onChange={handleChange}
+                                label="Parent Task"
+                            >
+                                <MenuItem value="">None</MenuItem>
+                                {tasks.map((t) => (
+                                    <MenuItem key={t.id} value={t.id}>{t.title}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth required>
+                            <InputLabel>Created by</InputLabel>
+                            <Select
+                                name="createdBy"
+                                value={formData.createdBy}
+                                onChange={handleChange}
+                                label="Created by"
+                            >
+                                {users.map((u) => (
+                                    <MenuItem key={u.id} value={u.id}>{u.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl fullWidth required>
+                            <InputLabel>Assigned to</InputLabel>
+                            <Select
+                                name="assignedTo"
+                                value={formData.assignedTo}
+                                onChange={handleChange}
+                                label="Assigned to"
+                            >
+                                {users.map((u) => (
+                                    <MenuItem key={u.id} value={u.id}>{u.name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                         <TextField
                             name="description"
                             label="Description"
@@ -115,6 +177,26 @@ function TaskModal({ open, onClose, onSave, task }) {
                                 ))}
                             </Select>
                         </FormControl>
+                        <TextField
+                            name="creationDate"
+                            label="Creation Date"
+                            type="date"
+                            value={formData.creationDate ? formData.creationDate.slice(0, 10) : ''}
+                            InputLabelProps={{ shrink: true }}
+                            InputProps={{ readOnly: true }}
+                            fullWidth
+                            sx={{ mt: 1 }}
+                        />
+                        <TextField
+                            name="dueDate"
+                            label="Due Date"
+                            type="date"
+                            value={formData.dueDate ? formData.dueDate.slice(0, 10) : ''}
+                            onChange={handleChange}
+                            InputLabelProps={{ shrink: true }}
+                            fullWidth
+                            sx={{ mt: 1 }}
+                        />
                     </Box>
                 </DialogContent>
                 <DialogActions>

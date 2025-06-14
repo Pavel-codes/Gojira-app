@@ -3,6 +3,8 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import Backlog from './pages/Backlog';
+import Task from './pages/Task';
 import { AuthProvider } from './context/AuthContext';
 
 const theme = createTheme({
@@ -25,6 +27,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/backlog" element={<Backlog />} />
+            <Route path="/task/:id" element={<Task />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Router>
