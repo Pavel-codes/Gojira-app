@@ -41,7 +41,7 @@ function App() {
                   <Route path="/register" element={<Register />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/backlog" element={<Backlog />} />
-                  <Route path="/task" element={<Task />} />
+                  <Route path="/task/:id" element={<Task />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/projects" element={<Projects />} />
                   <Route path="/profile" element={<UserProfile />} />

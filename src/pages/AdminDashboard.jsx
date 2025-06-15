@@ -36,8 +36,8 @@ function AdminDashboard() {
         { id: 2, name: 'Digital Solutions', users: 8, createdAt: '2024-01-15' },
     ]);
     const [users, setUsers] = useState([
-        { id: 1, name: 'John Doe', email: 'john@techcorp.com', organization: 'Tech Corp', role: 'Admin', status: 'Active' },
-        { id: 2, name: 'Jane Smith', email: 'jane@techcorp.com', organization: 'Tech Corp', role: 'User', status: 'Active' },
+        { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@techcorp.com', organization: 'Tech Corp', role: 'Admin', status: 'Active' },
+        { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane@techcorp.com', organization: 'Tech Corp', role: 'User', status: 'Active' },
     ]);
 
     // Dialog States
@@ -49,7 +49,8 @@ function AdminDashboard() {
     // Form States
     const [newOrg, setNewOrg] = useState({ name: '' });
     const [newUser, setNewUser] = useState({
-        name: '',
+        firstName: '',
+        lastName: '',
         email: '',
         organization: '',
         role: 'User',
@@ -107,7 +108,8 @@ function AdminDashboard() {
             setIsEditing(true);
             setEditingId(user.id);
             setNewUser({
-                name: user.name,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 email: user.email,
                 organization: user.organization,
                 role: user.role,
@@ -117,7 +119,8 @@ function AdminDashboard() {
             setIsEditing(false);
             setEditingId(null);
             setNewUser({
-                name: '',
+                firstName: '',
+                lastName: '',
                 email: '',
                 organization: '',
                 role: 'User',
@@ -130,7 +133,8 @@ function AdminDashboard() {
     const handleUserDialogClose = () => {
         setUserDialogOpen(false);
         setNewUser({
-            name: '',
+            firstName: '',
+            lastName: '',
             email: '',
             organization: '',
             role: 'User',
@@ -276,7 +280,8 @@ function AdminDashboard() {
                                 <Table>
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell>Name</TableCell>
+                                            <TableCell>First Name</TableCell>
+                                            <TableCell>Last Name</TableCell>
                                             <TableCell>Email</TableCell>
                                             <TableCell>Organization</TableCell>
                                             <TableCell>Role</TableCell>
@@ -287,7 +292,8 @@ function AdminDashboard() {
                                     <TableBody>
                                         {users.map((user) => (
                                             <TableRow key={user.id}>
-                                                <TableCell>{user.name}</TableCell>
+                                                <TableCell>{user.firstName}</TableCell>
+                                                <TableCell>{user.lastName}</TableCell>
                                                 <TableCell>{user.email}</TableCell>
                                                 <TableCell>{user.organization}</TableCell>
                                                 <TableCell>{user.role}</TableCell>
@@ -337,12 +343,21 @@ function AdminDashboard() {
                             </DialogTitle>
                             <DialogContent>
                                 <Grid container spacing={3} sx={{ mt: 1 }}>
-                                    <Grid item xs={12}>
+                                    <Grid item xs={12} sm={6}>
                                         <TextField
-                                            label="Full Name"
+                                            label="First Name"
                                             fullWidth
-                                            value={newUser.name}
-                                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                            value={newUser.firstName}
+                                            onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
+                                            required
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField
+                                            label="Last Name"
+                                            fullWidth
+                                            value={newUser.lastName}
+                                            onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
                                             required
                                         />
                                     </Grid>
@@ -418,7 +433,7 @@ function AdminDashboard() {
                                 <Button
                                     onClick={handleCreateUser}
                                     variant="contained"
-                                    disabled={!newUser.name || !newUser.email || !newUser.organization}
+                                    disabled={!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.organization}
                                 >
                                     {isEditing ? 'Save Changes' : 'Create'}
                                 </Button>

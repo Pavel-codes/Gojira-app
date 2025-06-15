@@ -3,7 +3,7 @@ import { Container, Typography, Table, TableBody, TableCell, TableContainer, Tab
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DescriptionIcon from '@mui/icons-material/Description';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -32,6 +32,7 @@ function Backlog() {
         ...initialTasks.done,
     ];
     const toggleSidebar = () => setSidebarOpen((open) => !open);
+    const navigate = useNavigate();
 
     const getPriorityColor = (priority) => {
         switch (priority.toLowerCase()) {
@@ -96,7 +97,18 @@ function Backlog() {
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         >
                                             <TableCell>
-                                                <Link to={`/task/${task.id}`} style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}>
+                                                <Link
+                                                    to={`/task/${task.id}`}
+                                                    style={{
+                                                        textDecoration: 'none',
+                                                        color: '#1976d2',
+                                                        fontWeight: 500
+                                                    }}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        window.location.href = `/task/${task.id}`;
+                                                    }}
+                                                >
                                                     {task.title}
                                                 </Link>
                                             </TableCell>
