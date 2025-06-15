@@ -5,18 +5,24 @@ import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import FolderIcon from '@mui/icons-material/Folder';
 import AddIcon from '@mui/icons-material/Add';
-import { Link } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useCreate } from '../context/CreateContext';
 import { useSidebar } from '../context/SidebarContext';
 import { useProject } from '../context/ProjectContext';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const { handleCreateClick } = useCreate();
     const { toggleSidebar } = useSidebar();
     const { openAddProjectModal } = useProject();
+    const { logout } = useAuth();
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [profileAnchorEl, setProfileAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const profileOpen = Boolean(profileAnchorEl);
 
     // Example data for demonstration
     const starredProjects = [
@@ -31,6 +37,20 @@ const Navbar = () => {
     };
     const handleMenuClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleProfileMenuOpen = (event) => {
+        setProfileAnchorEl(event.currentTarget);
+    };
+
+    const handleProfileMenuClose = () => {
+        setProfileAnchorEl(null);
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+        handleProfileMenuClose();
     };
 
     return (
@@ -106,9 +126,39 @@ const Navbar = () => {
                         <SearchIcon />
                     </IconButton>
                 </Paper>
-                <IconButton color="inherit">
+                <IconButton
+                    color="inherit"
+                    onClick={handleProfileMenuOpen}
+                    aria-controls={profileOpen ? 'profile-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={profileOpen ? 'true' : undefined}
+                >
                     <img src="https://www.gravatar.com/avatar?d=mp" alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
                 </IconButton>
+                <Menu
+                    id="profile-menu"
+                    anchorEl={profileAnchorEl}
+                    open={profileOpen}
+                    onClose={handleProfileMenuClose}
+                    MenuListProps={{
+                        'aria-labelledby': 'profile-button',
+                    }}
+                >
+                    <MenuItem
+                        onClick={handleProfileMenuClose}
+                        component={Link}
+                        to="/profile"
+                    >
+                        Profile
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={handleLogout}>
+                        <ListItemIcon>
+                            <LogoutIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Logout</ListItemText>
+                    </MenuItem>
+                </Menu>
             </Toolbar>
         </AppBar>
     );

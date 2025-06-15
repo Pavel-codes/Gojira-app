@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Chip } from '@mui/material';
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import DescriptionIcon from '@mui/icons-material/Description';
+import FlagIcon from '@mui/icons-material/Flag';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import EventIcon from '@mui/icons-material/Event';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const initialTasks = {
     todo: [
@@ -20,13 +26,39 @@ const initialTasks = {
 
 function Backlog() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    // Combine all tasks into one array
     const allTasks = [
         ...initialTasks.todo,
         ...initialTasks.inProgress,
         ...initialTasks.done,
     ];
     const toggleSidebar = () => setSidebarOpen((open) => !open);
+
+    const getPriorityColor = (priority) => {
+        switch (priority.toLowerCase()) {
+            case 'high':
+                return 'error';
+            case 'medium':
+                return 'warning';
+            case 'low':
+                return 'success';
+            default:
+                return 'default';
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch (status.toLowerCase()) {
+            case 'todo':
+                return 'default';
+            case 'inprogress':
+                return 'info';
+            case 'done':
+                return 'success';
+            default:
+                return 'default';
+        }
+    };
+
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar onMenuClick={toggleSidebar} />
@@ -41,30 +73,48 @@ function Backlog() {
                 </Box>
                 <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
                     <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
-                        <Typography variant="h4" gutterBottom>Backlog</Typography>
-                        <TableContainer component={Paper}>
+                        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <AssignmentIcon /> Backlog
+                        </Typography>
+                        <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
                             <Table>
                                 <TableHead>
-                                    <TableRow>
-                                        <TableCell>Title</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>Priority</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell>Creation Date</TableCell>
-                                        <TableCell>Due Date</TableCell>
+                                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon sx={{ mr: 1 }} />Title</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon sx={{ mr: 1 }} />Description</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon sx={{ mr: 1 }} />Priority</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><TimelineIcon sx={{ mr: 1 }} />Status</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><EventIcon sx={{ mr: 1 }} />Creation Date</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon sx={{ mr: 1 }} />Due Date</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {allTasks.map((task) => (
-                                        <TableRow key={task.id}>
+                                        <TableRow
+                                            key={task.id}
+                                            hover
+                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        >
                                             <TableCell>
                                                 <Link to={`/task/${task.id}`} style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}>
                                                     {task.title}
                                                 </Link>
                                             </TableCell>
                                             <TableCell>{task.description}</TableCell>
-                                            <TableCell>{task.priority}</TableCell>
-                                            <TableCell>{task.status}</TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={task.priority}
+                                                    color={getPriorityColor(task.priority)}
+                                                    size="small"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={task.status}
+                                                    color={getStatusColor(task.status)}
+                                                    size="small"
+                                                />
+                                            </TableCell>
                                             <TableCell>{dayjs(task.creationDate).format('YYYY-MM-DD')}</TableCell>
                                             <TableCell>{dayjs(task.dueDate).format('YYYY-MM-DD')}</TableCell>
                                         </TableRow>

@@ -6,13 +6,11 @@ import {
     Grid,
     Paper,
     Typography,
-    Button,
     Box,
     Card,
     CardContent,
     IconButton,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import TaskModal from '../components/TaskModal';
 import Sidebar from '../components/Sidebar';
@@ -46,16 +44,6 @@ function Dashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const { logout } = useAuth();
     const navigate = useNavigate();
-
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
-
-    const handleAddTask = () => {
-        setSelectedTask(null);
-        setIsModalOpen(true);
-    };
 
     const handleEditTask = (task) => {
         setSelectedTask(task);
@@ -167,7 +155,7 @@ function Dashboard() {
 
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar onMenuClick={toggleSidebar} onCreateClick={handleAddTask} />
+            <Navbar onMenuClick={toggleSidebar} />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
                 <Box sx={{
                     width: sidebarOpen ? '240px' : '0',
@@ -181,19 +169,6 @@ function Dashboard() {
                     <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                             <Typography variant="h4">Frontend team</Typography>
-                            <Box>
-                                <Button
-                                    variant="contained"
-                                    startIcon={<AddIcon />}
-                                    onClick={handleAddTask}
-                                    sx={{ mr: 2 }}
-                                >
-                                    Add Task
-                                </Button>
-                                <Button variant="outlined" onClick={handleLogout}>
-                                    Logout
-                                </Button>
-                            </Box>
                         </Box>
                         <Grid container spacing={3} alignItems="flex-start" wrap="nowrap">
                             {renderColumn('To Do', tasks.todo, 'todo')}
