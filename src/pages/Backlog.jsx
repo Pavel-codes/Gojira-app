@@ -113,15 +113,16 @@ function Backlog() {
             <Navbar onMenuClick={toggleSidebar} />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
                 <Box sx={{
-                    width: sidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s',
+                    width: sidebarOpen ? '180px' : '0',
+                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     overflow: 'hidden',
                     flexShrink: 0,
+                    minWidth: 0,
                 }}>
                     <Sidebar />
                 </Box>
                 <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
-                    <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
+                    <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <AssignmentIcon /> Backlog
                         </Typography>
@@ -138,31 +139,30 @@ function Backlog() {
                             </Alert>
                         )}
 
-                        <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
-                            <Table>
+                        <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2, maxHeight: '70vh' }}>
+                            <Table stickyHeader>
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task ID</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Project Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Organization</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Priority</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><TimelineIcon fontSize="small" sx={{ mr: 1 }} />Status</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Assigned To</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Created By</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Creation Date</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Due Date</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Comments</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Project Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Organization</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 120, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 80, fontSize: '0.85rem' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Priority</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 80, fontSize: '0.85rem' }}><TimelineIcon fontSize="small" sx={{ mr: 1 }} />Status</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Assigned To</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Created By</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Creation Date</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Due Date</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 70, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Comments</TableCell>
                                 </TableRow>
                             </TableHead>
                                 <TableBody>
                                     {tasks.map((task) => (
                                         <TableRow key={task.id} hover>
-                                            <TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>
                                                 <Link
                                                     to={`/task/${task.id}`}
-                                                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}
+                                                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500, fontSize: '0.85rem' }}
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         window.location.href = `/task/${task.id}`;
@@ -171,28 +171,30 @@ function Backlog() {
                                                     {task.title}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell>{task.projectName || 'N/A'}</TableCell>
-                                            <TableCell>{task.orgName || 'N/A'}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.projectName || 'N/A'}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.orgName || 'N/A'}</TableCell>
                                             <TableCell sx={{
-                                                maxWidth: 200,
+                                                maxWidth: 120,
                                                 whiteSpace: 'nowrap',
                                                 overflow: 'hidden',
-                                                textOverflow: 'ellipsis'
-                                                }}>
+                                                textOverflow: 'ellipsis',
+                                                textAlign: 'left',
+                                                fontSize: '0.85rem'
+                                            }}>
                                                 {task.description}
                                             </TableCell>
-                                            <TableCell>
-                                                <Chip label={task.priority} color={getPriorityColor(task.priority)} size="small" />
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>
+                                                <Chip label={task.priority} color={getPriorityColor(task.priority)} size="small" sx={{ fontSize: '0.8rem' }} />
                                             </TableCell>
-                                            <TableCell>
-                                                <Chip label={task.status} color={getStatusColor(task.status)} size="small" />
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>
+                                                <Chip label={task.status} color={getStatusColor(task.status)} size="small" sx={{ fontSize: '0.8rem' }} />
                                             </TableCell>
-                                            <TableCell>{task.assignedTo}</TableCell>
-                                            <TableCell>{task.createdBy}</TableCell>
-                                            <TableCell>{dayjs(task.creationDate).format('YYYY-MM-DD')}</TableCell>
-                                            <TableCell>{dayjs(task.dueDate).format('YYYY-MM-DD')}</TableCell>
-                                            <TableCell>
-                                                <Chip label={task.comments.length} size="small" variant="outlined" />
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.assignedTo}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.createdBy}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{dayjs(task.creationDate).format('YYYY-MM-DD')}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{dayjs(task.dueDate).format('YYYY-MM-DD')}</TableCell>
+                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>
+                                                <Chip label={task.comments.length} size="small" variant="outlined" sx={{ fontSize: '0.8rem' }} />
                                             </TableCell>
                                         </TableRow>
                                     ))}
