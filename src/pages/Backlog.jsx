@@ -16,7 +16,9 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import CommentIcon from '@mui/icons-material/Comment';
 import DomainIcon from '@mui/icons-material/Domain';       // Optional: for organization
 import PersonIcon from '@mui/icons-material/Person';       // Optional: for "Created By" / "Assigned To"
+import config from '../config';
 
+const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
 
 const initialTasksArray = [
     {
@@ -49,7 +51,7 @@ function Backlog() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('https://vgz1orwas6.execute-api.us-east-1.amazonaws.com/dev/Tasks', {
+            const response = await fetch(apiUrl, {
                 method: 'GET',
             });
 
