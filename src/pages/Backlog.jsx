@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Chip } from '@mui/material';
+import { useState, useEffect } from 'react';
+import {
+    Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box,
+    Chip, Alert, CircularProgress
+} from '@mui/material';
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -10,53 +13,98 @@ import FlagIcon from '@mui/icons-material/Flag';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import EventIcon from '@mui/icons-material/Event';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CommentIcon from '@mui/icons-material/Comment';
+import DomainIcon from '@mui/icons-material/Domain';       // Optional: for organization
+import PersonIcon from '@mui/icons-material/Person';       // Optional: for "Created By" / "Assigned To"
 
-const initialTasks = {
-    todo: [
-        { id: 1, title: 'Setup AWS Cognito', priority: 'High', description: 'Configure authentication', status: 'todo', creationDate: dayjs().subtract(2, 'day').toISOString(), dueDate: dayjs().add(5, 'day').toISOString() },
-        { id: 2, title: 'Design Database Schema', priority: 'Medium', description: 'Create ERD', status: 'todo', creationDate: dayjs().subtract(1, 'day').toISOString(), dueDate: dayjs().add(6, 'day').toISOString() },
-    ],
-    inProgress: [
-        { id: 3, title: 'Implement Login Flow', priority: 'High', description: 'Connect to Cognito', status: 'inProgress', creationDate: dayjs().subtract(3, 'day').toISOString(), dueDate: dayjs().add(3, 'day').toISOString() },
-    ],
-    done: [
-        { id: 4, title: 'Project Setup', priority: 'Low', description: 'Initialize React project', status: 'done', creationDate: dayjs().subtract(7, 'day').toISOString(), dueDate: dayjs().subtract(1, 'day').toISOString() },
-    ],
-};
+
+const initialTasksArray = [
+    {
+        id: 1,
+        title: 'Setup AWS Cognito',
+        priority: 'High',
+        description: 'Configure authentication',
+        status: 'todo',
+        creationDate: dayjs().subtract(2, 'day').toISOString(),
+        dueDate: dayjs().add(5, 'day').toISOString(),
+        assignedTo: 'Unassigned',
+        createdBy: 'Unknown',
+        projectId: '123',
+        projectName: 'Auth Setup',
+        orgName: 'TestOrg',
+        orgId: 'org1',
+        comments: []
+    }
+];
 
 function Backlog() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const allTasks = [
-        ...initialTasks.todo,
-        ...initialTasks.inProgress,
-        ...initialTasks.done,
-    ];
-    const toggleSidebar = () => setSidebarOpen((open) => !open);
+    const [tasks, setTasks] = useState(initialTasksArray);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const toggleSidebar = () => setSidebarOpen((open) => !open);
+
+    const fetchTasksFromAPI = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('https://vgz1orwas6.execute-api.us-east-1.amazonaws.com/dev/Tasks', {
+                method: 'GET',
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            if (data && Array.isArray(data)) {
+                const transformed = data.map(task => ({
+                    id: task.taskId,
+                    title: task.taskName,
+                    priority: task.priority,
+                    description: task.description,
+                    status: task.status,
+                    creationDate: task.creationDate,
+                    dueDate: task.dueDate,
+                    assignedTo: task.assignedTo?.fullName || 'Unassigned',
+                    createdBy: task.createdBy?.fullName || 'Unknown',
+                    projectName: task.projectName || 'Unknown Project',
+                    comments: task.comments || [],
+                    projectId: task.projectId,
+                    orgName: task.orgName,
+                    orgId: task.orgId
+                }));
+
+                setTasks(transformed);
+            } else {
+                setError('No tasks data found in API response.');
+            }
+        } catch (error) {
+            console.error('Error fetching tasks from API:', error);
+            setError('Failed to fetch tasks from API. Using local data.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTasksFromAPI();
+    }, []);
 
     const getPriorityColor = (priority) => {
-        switch (priority.toLowerCase()) {
-            case 'high':
-                return 'error';
-            case 'medium':
-                return 'warning';
-            case 'low':
-                return 'success';
-            default:
-                return 'default';
+        switch (priority?.toLowerCase()) {
+            case 'high': return 'error';
+            case 'medium': return 'warning';
+            case 'low': return 'success';
+            default: return 'default';
         }
     };
 
     const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
-            case 'todo':
-                return 'default';
-            case 'inprogress':
-                return 'info';
-            case 'done':
-                return 'success';
-            default:
-                return 'default';
+        switch (status?.toLowerCase()) {
+            case 'todo': return 'default';
+            case 'inprogress': return 'info';
+            case 'done': return 'success';
+            default: return 'default';
         }
     };
 
@@ -66,7 +114,7 @@ function Backlog() {
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
                 <Box sx={{
                     width: sidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'width 0.3s',
                     overflow: 'hidden',
                     flexShrink: 0,
                 }}>
@@ -77,33 +125,44 @@ function Backlog() {
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <AssignmentIcon /> Backlog
                         </Typography>
+
+                        {loading && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                                <CircularProgress />
+                            </Box>
+                        )}
+
+                        {error && (
+                            <Alert severity="warning" sx={{ mb: 2 }}>
+                                {error}
+                            </Alert>
+                        )}
+
                         <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2 }}>
                             <Table>
-                                <TableHead>
-                                    <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon sx={{ mr: 1 }} />Title</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon sx={{ mr: 1 }} />Description</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon sx={{ mr: 1 }} />Priority</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><TimelineIcon sx={{ mr: 1 }} />Status</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><EventIcon sx={{ mr: 1 }} />Creation Date</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon sx={{ mr: 1 }} />Due Date</TableCell>
-                                    </TableRow>
-                                </TableHead>
+                            <TableHead>
+                                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task ID</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Project Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Organization</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Priority</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><TimelineIcon fontSize="small" sx={{ mr: 1 }} />Status</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Assigned To</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Created By</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Creation Date</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Due Date</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Comments</TableCell>
+                                </TableRow>
+                            </TableHead>
                                 <TableBody>
-                                    {allTasks.map((task) => (
-                                        <TableRow
-                                            key={task.id}
-                                            hover
-                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        >
+                                    {tasks.map((task) => (
+                                        <TableRow key={task.id} hover>
                                             <TableCell>
                                                 <Link
                                                     to={`/task/${task.id}`}
-                                                    style={{
-                                                        textDecoration: 'none',
-                                                        color: '#1976d2',
-                                                        fontWeight: 500
-                                                    }}
+                                                    style={{ textDecoration: 'none', color: '#1976d2', fontWeight: 500 }}
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         window.location.href = `/task/${task.id}`;
@@ -112,23 +171,29 @@ function Backlog() {
                                                     {task.title}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell>{task.description}</TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={task.priority}
-                                                    color={getPriorityColor(task.priority)}
-                                                    size="small"
-                                                />
+                                            <TableCell>{task.projectName || 'N/A'}</TableCell>
+                                            <TableCell>{task.orgName || 'N/A'}</TableCell>
+                                            <TableCell sx={{
+                                                maxWidth: 200,
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                                }}>
+                                                {task.description}
                                             </TableCell>
                                             <TableCell>
-                                                <Chip
-                                                    label={task.status}
-                                                    color={getStatusColor(task.status)}
-                                                    size="small"
-                                                />
+                                                <Chip label={task.priority} color={getPriorityColor(task.priority)} size="small" />
                                             </TableCell>
+                                            <TableCell>
+                                                <Chip label={task.status} color={getStatusColor(task.status)} size="small" />
+                                            </TableCell>
+                                            <TableCell>{task.assignedTo}</TableCell>
+                                            <TableCell>{task.createdBy}</TableCell>
                                             <TableCell>{dayjs(task.creationDate).format('YYYY-MM-DD')}</TableCell>
                                             <TableCell>{dayjs(task.dueDate).format('YYYY-MM-DD')}</TableCell>
+                                            <TableCell>
+                                                <Chip label={task.comments.length} size="small" variant="outlined" />
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -141,4 +206,4 @@ function Backlog() {
     );
 }
 
-export default Backlog; 
+export default Backlog;
