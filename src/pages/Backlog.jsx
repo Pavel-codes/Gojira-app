@@ -143,14 +143,13 @@ function Backlog() {
                             <Table stickyHeader>
                             <TableHead>
                                 <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Project Name</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Organization</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Task</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 100, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Project</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 120, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 80, fontSize: '0.85rem' }}><FlagIcon fontSize="small" sx={{ mr: 1 }} />Priority</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 80, fontSize: '0.85rem' }}><TimelineIcon fontSize="small" sx={{ mr: 1 }} />Status</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Assigned To</TableCell>
-                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Created By</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Assignee</TableCell>
+                                    <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><EventIcon fontSize="small" sx={{ mr: 1 }} />Creator</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Creation Date</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 90, fontSize: '0.85rem' }}><CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />Due Date</TableCell>
                                     <TableCell sx={{ fontWeight: 'bold', textAlign: 'center', minWidth: 70, fontSize: '0.85rem' }}><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Comments</TableCell>
@@ -172,7 +171,6 @@ function Backlog() {
                                                 </Link>
                                             </TableCell>
                                             <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.projectName || 'N/A'}</TableCell>
-                                            <TableCell sx={{ textAlign: 'center', fontSize: '0.85rem' }}>{task.orgName || 'N/A'}</TableCell>
                                             <TableCell sx={{
                                                 maxWidth: 120,
                                                 whiteSpace: 'nowrap',
