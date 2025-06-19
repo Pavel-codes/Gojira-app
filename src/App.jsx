@@ -11,6 +11,7 @@ import Projects from './pages/Projects';
 import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserProfile';
 import AdminDashboard from './pages/AdminDashboard';
+import Users from './pages/Users';
 import { AuthProvider } from './context/AuthContext';
 import { CreateProvider } from './context/CreateContext';
 import { SidebarProvider } from './context/SidebarContext';
@@ -47,6 +48,7 @@ function App() {
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/settings" element={<UserSettings />} />
                   <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/users/:orgName" element={<Users />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </Router>
