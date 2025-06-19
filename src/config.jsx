@@ -4,7 +4,7 @@ const config = {
     endpoints: {
         tasks: '/Tasks',
         users: '/Users',
-        projects: '/Projects',
+        projects: '/Project',
         organizations: '/Organizations',
         comments: '/Tasks/Comments',
         tasksUser: '/Tasks/User',

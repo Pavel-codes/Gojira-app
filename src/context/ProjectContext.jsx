@@ -1,44 +1,110 @@
-import { createContext, useState, useContext } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, InputLabel, FormControl, Button } from '@mui/material';
+import { createContext, useState, useContext, useEffect } from 'react';
+import config from '../config';
 
+const apiUrl = config.apiBaseUrl + config.endpoints.projects;
 const ProjectContext = createContext(null);
 
-const initialProjects = [
-    { id: 1, name: 'Attack Stack', tag: 'ATCK', manager: 'Alice', description: 'Security project for attack simulation.' },
-    { id: 2, name: 'Platform', tag: 'PLAT', manager: 'Bob', description: 'Core platform for all teams.' },
-];
-
-const managers = ['Alice', 'Bob', 'Charlie'];
+const managers = ['user001', 'user002', 'user004']; // adjust to match actual users if needed
 
 export const ProjectProvider = ({ children }) => {
-    const [projects, setProjects] = useState(initialProjects);
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
     const [addOpen, setAddOpen] = useState(false);
-    const [newProject, setNewProject] = useState({ name: '', tag: '', manager: managers[0], description: '' });
+    const [newProject, setNewProject] = useState({
+        name: '',
+        tag: '',
+        manager: managers[0],
+        description: ''
+    });
+
+    const fetchProjectsFromAPI = async () => {
+        setLoading(true);
+        setError(null);
+    
+        try {
+            const response = await fetch(apiUrl, { method: 'GET' });
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+            const data = await response.json();
+            console.log('Parsed JSON:', data);
+    
+            // ✅ Your data IS the array
+            if (Array.isArray(data)) {
+                const transformed = data.map(project => ({
+                    id: project.projectId,
+                    name: project.projectName,
+                    tag: project.projectTag,
+                    manager: project.projectManager,
+                    description: project.description,
+                    orgId: project.orgId,
+                }));
+                console.log('Transformed projects:', transformed);
+                setProjects(transformed);
+            } else {
+                console.warn('❌ API response is not an array:', data);
+                setError('No project data found in API response.');
+            }
+        } catch (error) {
+            console.error('Error fetching projects from API:', error);
+            setError('Failed to fetch projects from API.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    
+
+    useEffect(() => {
+        fetchProjectsFromAPI();
+    }, []);
 
     const openAddProjectModal = () => setAddOpen(true);
     const closeAddProjectModal = () => setAddOpen(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewProject((prev) => ({ ...prev, [name]: value }));
+        setNewProject(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleAddProject = () => {
-        const nextId = projects.length ? Math.max(...projects.map(p => p.id)) + 1 : 1;
-        setProjects([
-            ...projects,
-            {
-                id: nextId,
-                name: newProject.name,
-                tag: newProject.tag || newProject.name.slice(0, 4).toUpperCase(),
-                manager: newProject.manager,
-                description: newProject.description,
-            },
-        ]);
-        setNewProject({ name: '', tag: '', manager: managers[0], description: '' });
-        setAddOpen(false);
+    const handleAddProject = async () => {
+        const newEntry = {
+            projectName: newProject.name,
+            projectTag: newProject.tag || newProject.name.slice(0, 4).toUpperCase(),
+            projectManager: newProject.manager,
+            description: newProject.description,
+            orgId: 'org001', // Replace with dynamic org ID if available
+        };
+    
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newEntry),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Failed to add project. Status: ${response.status}`);
+            }
+    
+            const result = await response.json();
+            console.log('Successfully added project:', result);
+    
+            // Optionally refresh full list from server
+            await fetchProjectsFromAPI();
+    
+            // Reset form and close modal
+            setNewProject({ name: '', tag: '', manager: managers[0], description: '' });
+            setAddOpen(false);
+        } catch (error) {
+            console.error('Error adding project:', error);
+            setError('Failed to add project to server.');
+        }
     };
-
+    
     return (
         <ProjectContext.Provider value={{
             projects,
@@ -49,57 +115,10 @@ export const ProjectProvider = ({ children }) => {
             closeAddProjectModal,
             handleInputChange,
             handleAddProject,
+            loading,
+            error
         }}>
             {children}
-            {/* Add Project Modal rendered globally */}
-            <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
-                <DialogTitle>Add Project</DialogTitle>
-                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                    <TextField
-                        label="Project Name"
-                        name="name"
-                        value={newProject.name}
-                        onChange={handleInputChange}
-                        fullWidth
-                        required
-                    />
-                    <TextField
-                        label="Tag"
-                        name="tag"
-                        value={newProject.tag}
-                        onChange={handleInputChange}
-                        fullWidth
-                        inputProps={{ maxLength: 8 }}
-                        helperText="Up to 8 characters. If left blank, will be auto-generated."
-                    />
-                    <FormControl fullWidth>
-                        <InputLabel>Project Manager</InputLabel>
-                        <Select
-                            name="manager"
-                            value={newProject.manager}
-                            label="Project Manager"
-                            onChange={handleInputChange}
-                        >
-                            {managers.map((m) => (
-                                <MenuItem key={m} value={m}>{m}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                    <TextField
-                        label="Description"
-                        name="description"
-                        value={newProject.description}
-                        onChange={handleInputChange}
-                        fullWidth
-                        multiline
-                        minRows={2}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeAddProjectModal}>Cancel</Button>
-                    <Button onClick={handleAddProject} variant="contained" disabled={!newProject.name}>Add</Button>
-                </DialogActions>
-            </Dialog>
         </ProjectContext.Provider>
     );
 };
@@ -108,4 +127,4 @@ export const useProject = () => {
     const context = useContext(ProjectContext);
     if (!context) throw new Error('useProject must be used within a ProjectProvider');
     return context;
-}; 
+};

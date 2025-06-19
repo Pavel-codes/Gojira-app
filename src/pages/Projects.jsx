@@ -1,4 +1,9 @@
-import { Box, Typography, Paper, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import {
+    Box, Typography, Paper, Button, Table, TableBody, TableCell,
+    TableContainer, TableHead, TableRow, Dialog, DialogTitle,
+    DialogContent, DialogActions, TextField, Select, MenuItem,
+    InputLabel, FormControl
+} from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useSidebar } from '../context/SidebarContext';
@@ -15,6 +20,8 @@ const Projects = () => {
         closeAddProjectModal,
         handleInputChange,
         handleAddProject,
+        loading,
+        error
     } = useProject();
 
     return (
@@ -27,31 +34,39 @@ const Projects = () => {
                         <Typography variant="h4">All Projects</Typography>
                         <Button variant="contained" onClick={openAddProjectModal}>Add Project</Button>
                     </Box>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>ID</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Tag</TableCell>
-                                    <TableCell>Manager</TableCell>
-                                    <TableCell>Description</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {projects.map((project) => (
-                                    <TableRow key={project.id}>
-                                        <TableCell>{project.id}</TableCell>
-                                        <TableCell>{project.name}</TableCell>
-                                        <TableCell>{project.tag}</TableCell>
-                                        <TableCell>{project.manager}</TableCell>
-                                        <TableCell>{project.description}</TableCell>
+
+                    {loading ? (
+                        <Typography>Loading projects...</Typography>
+                    ) : error ? (
+                        <Typography color="error">{error}</Typography>
+                    ) : (
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ID</TableCell>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Tag</TableCell>
+                                        <TableCell>Manager</TableCell>
+                                        <TableCell>Description</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {projects.map((project) => (
+                                        <TableRow key={project.id}>
+                                            <TableCell>{project.id}</TableCell>
+                                            <TableCell>{project.name}</TableCell>
+                                            <TableCell>{project.tag}</TableCell>
+                                            <TableCell>{project.manager}</TableCell>
+                                            <TableCell>{project.description}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )}
                 </Box>
+
                 {/* Add Project Modal */}
                 <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
                     <DialogTitle>Add Project</DialogTitle>
@@ -106,4 +121,4 @@ const Projects = () => {
     );
 };
 
-export default Projects; 
+export default Projects;
