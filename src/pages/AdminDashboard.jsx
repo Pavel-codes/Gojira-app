@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Container,
     Paper,
@@ -28,17 +28,17 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import config from '../config';
 
 function AdminDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [organizations, setOrganizations] = useState([
-        { id: 1, name: 'Tech Corp', users: 15, createdAt: '2024-01-01' },
-        { id: 2, name: 'Digital Solutions', users: 8, createdAt: '2024-01-15' },
-    ]);
-    const [users, setUsers] = useState([
-        { id: 1, firstName: 'John', lastName: 'Doe', email: 'john@techcorp.com', organization: 'Tech Corp', role: 'Admin', status: 'Active' },
-        { id: 2, firstName: 'Jane', lastName: 'Smith', email: 'jane@techcorp.com', organization: 'Tech Corp', role: 'User', status: 'Active' },
-    ]);
+    const organizationsApiUrl = config.apiBaseUrl + config.endpoints.organizations;
+    const usersApiUrl = config.apiBaseUrl + config.endpoints.users;
+    const [organizations, setOrganizations] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
 
     // Dialog States
     const [orgDialogOpen, setOrgDialogOpen] = useState(false);
@@ -56,6 +56,44 @@ function AdminDashboard() {
         role: 'User',
         status: 'Active'
     });
+    const fetchOrganizationsFromAPI = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(organizationsApiUrl);
+            if (!response.ok) throw new Error(`Org fetch failed: ${response.status}`);
+            const data = await response.json();
+            console.log('Organizations:', data);
+            setOrganizations(data); // Assuming API returns an array of orgs
+        } catch (err) {
+            console.error('Error fetching organizations:', err);
+            setError('Failed to fetch organizations');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // const fetchUsersForOrg = async (orgName) => {
+    //     try {
+    //         setLoading(true);
+    //         const response = await fetch(`${usersApiUrl}?orgName=${encodeURIComponent(orgName)}`);
+    //         if (!response.ok) throw new Error(`User fetch failed: ${response.status}`);
+    //         const data = await response.json();
+    //         console.log('Users for', orgName, ':', data);
+    //         setUsers(data); // or however you store/display users
+    //     } catch (err) {
+    //         console.error('Error fetching users:', err);
+    //         setError('Failed to fetch users for organization');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+    useEffect(() => {
+        fetchOrganizationsFromAPI();
+        // fetchUsersFromAPI('TechNova');
+    }, []);
 
     // Organization Handlers
     const handleOrgDialogOpen = (org = null) => {
@@ -220,7 +258,8 @@ function AdminDashboard() {
                         <Typography variant="h4" gutterBottom>
                             Admin Dashboard
                         </Typography>
-
+                        {loading && <Typography>Loading...</Typography>}
+                        {error && <Typography color="error">{error}</Typography>}
                         {/* Organizations Section */}
                         <Paper sx={{ p: 3, mb: 4 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -246,8 +285,8 @@ function AdminDashboard() {
                                     <TableBody>
                                         {organizations.map((org) => (
                                             <TableRow key={org.id}>
-                                                <TableCell>{org.name}</TableCell>
-                                                <TableCell>{org.users}</TableCell>
+                                                <TableCell>{org.orgName}</TableCell>
+                                                <TableCell>{org.users.length}</TableCell>
                                                 <TableCell>{org.createdAt}</TableCell>
                                                 <TableCell>
                                                     <IconButton size="small" color="primary" onClick={() => handleOrgDialogOpen(org)}>

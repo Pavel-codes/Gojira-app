@@ -5,7 +5,7 @@ const config = {
         tasks: '/Tasks',
         users: '/Users',
         projects: '/Project',
-        organizations: '/Organizations',
+        organizations: '/Organization',
         comments: '/Tasks/Comments',
         tasksUser: '/Tasks/User',
         usersUser: '/Users/User',

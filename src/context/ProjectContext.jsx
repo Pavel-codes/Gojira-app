@@ -28,7 +28,6 @@ export const ProjectProvider = ({ children }) => {
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
             const data = await response.json();
-            console.log('Parsed JSON:', data);
     
             // ✅ Your data IS the array
             if (Array.isArray(data)) {
@@ -40,7 +39,6 @@ export const ProjectProvider = ({ children }) => {
                     description: project.description,
                     orgId: project.orgId,
                 }));
-                console.log('Transformed projects:', transformed);
                 setProjects(transformed);
             } else {
                 console.warn('❌ API response is not an array:', data);
@@ -104,7 +102,7 @@ export const ProjectProvider = ({ children }) => {
             setError('Failed to add project to server.');
         }
     };
-    
+
     return (
         <ProjectContext.Provider value={{
             projects,
