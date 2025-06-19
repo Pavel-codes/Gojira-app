@@ -6,6 +6,7 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import FolderIcon from '@mui/icons-material/Folder';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/PersonOutline';
 import PeopleIcon from '@mui/icons-material/People';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { Link, useNavigate } from 'react-router-dom';
@@ -137,25 +138,17 @@ const Navbar = () => {
                 <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: 'none' }}>DASHBOARD</Button>
                 <Button color="inherit" onClick={handlePeopleMenuOpen} sx={{ textTransform: 'none' }}>PEOPLE</Button>
                 <Menu anchorEl={peopleAnchorEl} open={peopleOpen} onClose={handlePeopleMenuClose} PaperProps={{ sx: { width: 300, p: 0 } }}>
-                    <ListSubheader>My Team</ListSubheader>
+                    <ListSubheader> My Team </ListSubheader>
                     <Divider />
 
                     {users.map((person) => (
                         <MenuItem key={person.id} onClick={handlePeopleMenuClose}>
-                            <ListItemIcon><PeopleIcon></PeopleIcon></ListItemIcon>
+                            <ListItemIcon><PersonIcon></PersonIcon></ListItemIcon>
                             <ListItemText primary={person.name} secondary={person.email} />
                             <ListItemText secondary={person.role} />
                             {/* <StarIcon sx={{ color: '#fbc02d', ml: 1 }} fontSize="small" /> */}
                         </MenuItem>
                     ))}
-                    <Divider />
-                    <MenuItem onClick={handlePeopleMenuClose} component={Link} to="/users">
-                        <ListItemText primary="View all people" />
-                    </MenuItem>
-                    <MenuItem onClick={() => { handlePeopleMenuClose(); navigate('/users/new'); }}>
-                        <ListItemIcon><AddIcon /></ListItemIcon>
-                        <ListItemText primary="Add person" />
-                    </MenuItem>
                 </Menu>
                 <Button variant="contained" color="primary" sx={{ ml: 2, mr: 2 }} onClick={handleCreateClick}>Create</Button>
                 <Box sx={{ flexGrow: 1 }} />

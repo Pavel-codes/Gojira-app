@@ -2,12 +2,18 @@ import {
     Box, Typography, Paper, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Dialog, DialogTitle,
     DialogContent, DialogActions, TextField, Select, MenuItem,
-    InputLabel, FormControl
+    InputLabel, FormControl, IconButton, Container
 } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useSidebar } from '../context/SidebarContext';
 import { useProject } from '../context/ProjectContext';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import TagIcon from '@mui/icons-material/LabelOutlined';
+import PersonIcon from '@mui/icons-material/PersonOutline';
+import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
+import AssignmentIcon from '@mui/icons-material/AssignmentOutlined';
 
 const Projects = () => {
     const { isSidebarOpen } = useSidebar();
@@ -24,16 +30,29 @@ const Projects = () => {
         error
     } = useProject();
 
+    const handleEditProject = (projectId) => {
+        alert(`Edit project ${projectId} - logic not implemented`);
+    };
+
+    const handleDeleteProject = (projectId) => {
+        if (window.confirm(`Are you sure you want to delete project ${projectId}?`)) {
+            alert(`Delete project ${projectId} - logic not implemented`);
+        }
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
-            <Sidebar />
+
             <Box sx={{ flexGrow: 1, ml: isSidebarOpen ? '240px' : 0, transition: 'margin-left 0.3s ease' }}>
                 <Navbar />
-                <Box sx={{ p: 3 }}>
+
+                <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                         <Typography variant="h4">All Projects</Typography>
                         <Button variant="contained" onClick={openAddProjectModal}>Add Project</Button>
                     </Box>
+
+                    <Sidebar />
 
                     {loading ? (
                         <Typography>Loading projects...</Typography>
@@ -44,11 +63,12 @@ const Projects = () => {
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>ID</TableCell>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>Tag</TableCell>
-                                        <TableCell>Manager</TableCell>
-                                        <TableCell>Description</TableCell>
+                                        <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />ID</TableCell>
+                                        <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Name</TableCell>
+                                        <TableCell><TagIcon fontSize="small" sx={{ mr: 1 }} />Tag</TableCell>
+                                        <TableCell><PersonIcon fontSize="small" sx={{ mr: 1 }} />Manager</TableCell>
+                                        <TableCell><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
+                                        <TableCell>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -59,13 +79,21 @@ const Projects = () => {
                                             <TableCell>{project.tag}</TableCell>
                                             <TableCell>{project.manager}</TableCell>
                                             <TableCell>{project.description}</TableCell>
+                                            <TableCell>
+                                                <IconButton size="small" color="primary" onClick={() => handleEditProject(project.id)}>
+                                                    <EditIcon />
+                                                </IconButton>
+                                                <IconButton size="small" color="error" onClick={() => handleDeleteProject(project.id)}>
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                         </TableContainer>
                     )}
-                </Box>
+                </Container>
 
                 {/* Add Project Modal */}
                 <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
