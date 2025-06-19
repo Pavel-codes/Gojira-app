@@ -36,7 +36,7 @@ function App() {
             <ProjectProvider>
               <Router>
                 <Routes>
-                  <Route path="/" element={<Home />} />
+                  {/* <Route path="/" element={<Home />} /> */}
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -47,7 +47,7 @@ function App() {
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/settings" element={<UserSettings />} />
                   <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>
               </Router>
             </ProjectProvider>
