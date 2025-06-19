@@ -116,19 +116,30 @@ function AdminDashboard() {
         setEditingId(null);
     };
 
-    const handleCreateOrg = () => {
+    const handleCreateOrg = async () => {
         if (isEditing) {
             setOrganizations(orgs => orgs.map(org =>
                 org.id === editingId ? { ...org, name: newOrg.name } : org
             ));
         } else {
-            const newOrganization = {
-                id: organizations.length + 1,
-                name: newOrg.name,
-                users: 0,
-                createdAt: new Date().toISOString().split('T')[0]
-            };
-            setOrganizations([...organizations, newOrganization]);
+            try {
+                const response = await fetch(organizationsApiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orgName: newOrg.name, users: [] })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to create organization. Status: ${response.status}`);
+                }
+
+                await fetchOrganizationsFromAPI();
+            } catch (err) {
+                console.error('Error creating organization:', err);
+                setError('Failed to create organization');
+            }
         }
         handleOrgDialogClose();
     };
