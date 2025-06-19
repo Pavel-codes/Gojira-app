@@ -1,15 +1,24 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Container, Typography, CircularProgress } from '@mui/material';
+import config from '../config';
 
 function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
         // TODO: Replace with actual AWS Cognito URL
-        const cognitoUrl = process.env.REACT_APP_COGNITO_URL || 'https://your-cognito-domain.auth.region.amazoncognito.com';
-
+        const clientId = config.cognitoClientId;
+        const domain = config.cognitoUrl; 
+        const redirectUri = config.cognitoRedirectUri;
+        const responseType = 'token'; // or 'code' if using Authorization Code Flow
+        const scopes = 'openid+email';
         // Redirect to Cognito login
+        //const cognitoUrl = `${domain}/login?client_id=${clientId}&response_type=${responseType}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+        const cognitoUrl = `${domain}/login?client_id=${clientId}&response_type=${responseType}&scope=${scopes}&redirect_uri=${redirectUri}`; // for debugging
+        
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!add 2 different login redirections based on signed in user!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         window.location.href = cognitoUrl;
     }, []);
 
