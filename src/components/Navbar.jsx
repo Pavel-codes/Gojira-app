@@ -9,6 +9,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/PersonOutline';
 import PeopleIcon from '@mui/icons-material/People';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+//Arrow down icon
+import ArrowDown from '@mui/icons-material/ArrowDropDown';
+
 import { Link, useNavigate } from 'react-router-dom';
 import { use, useState, useEffect } from 'react';
 import { useCreate } from '../context/CreateContext';
@@ -107,7 +110,7 @@ const Navbar = () => {
                     GoJira
                 </Typography>
                 <Button color="inherit">Your work</Button>
-                <Button color="inherit" onClick={handleMenuOpen} sx={{ textTransform: 'none' }}>PROJECTS</Button>
+                <Button color="inherit" onClick={handleMenuOpen} sx={{ textTransform: 'none' }}>PROJECTS<ArrowDown></ArrowDown></Button>
                 <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose} PaperProps={{ sx: { width: 300, p: 0 } }}>
                     <ListSubheader>Starred</ListSubheader>
                     {starredProjects.map((project) => (
@@ -136,7 +139,7 @@ const Navbar = () => {
                     </MenuItem>
                 </Menu>
                 <Button color="inherit" component={Link} to="/dashboard" sx={{ textTransform: 'none' }}>DASHBOARD</Button>
-                <Button color="inherit" onClick={handlePeopleMenuOpen} sx={{ textTransform: 'none' }}>PEOPLE</Button>
+                <Button color="inherit" onClick={handlePeopleMenuOpen} sx={{ textTransform: 'none' }}>PEOPLE<ArrowDown></ArrowDown></Button>
                 <Menu anchorEl={peopleAnchorEl} open={peopleOpen} onClose={handlePeopleMenuClose} PaperProps={{ sx: { width: 300, p: 0 } }}>
                     <ListSubheader> My Team </ListSubheader>
                     <Divider />
