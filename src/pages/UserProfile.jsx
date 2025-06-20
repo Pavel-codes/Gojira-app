@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Container,
     Paper,
@@ -9,21 +9,55 @@ import {
     Button,
     Avatar,
     IconButton,
+    CircularProgress,
+    Alert
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import config from '../config'; // Ensure this file exports API base URL
 
 function UserSettings() {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [settings, setSettings] = useState({
-        email: 'user@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
-        role: 'Software Engineer',
-        department: 'Engineering',
-        organization: 'Tech Corp',
-    });
+    const [settings, setSettings] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const loggedUser = JSON.parse(sessionStorage.getItem('user'));
+            const userId = loggedUser.sub; // Assuming it's already stored on login
+
+            if (!userId) {
+                setError('User ID not found in session');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${config.apiBaseUrl}/Users/user/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const data = await response.json();
+                setSettings(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
 
     const handleInputChange = (field) => (event) => {
         setSettings({
@@ -33,7 +67,7 @@ function UserSettings() {
     };
 
     const handleSave = () => {
-        // TODO: Implement save functionality
+        // TODO: Implement update logic (e.g. PUT to /Users/user)
         console.log('Saving settings:', settings);
     };
 
@@ -61,120 +95,110 @@ function UserSettings() {
                         <Typography variant="h4" gutterBottom>
                             User Settings
                         </Typography>
-                        <Grid container spacing={3}>
-                            {/* Profile Section */}
-                            <Grid item xs={12} md={4}>
-                                <Paper sx={{ p: 3, textAlign: 'center' }}>
-                                    <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                                        <Avatar
-                                            src="https://www.gravatar.com/avatar?d=mp"
-                                            sx={{ width: 120, height: 120, mb: 2 }}
-                                        />
-                                        <IconButton
-                                            sx={{
-                                                position: 'absolute',
-                                                bottom: 0,
-                                                right: 0,
-                                                backgroundColor: 'primary.main',
-                                                color: 'white',
-                                                '&:hover': {
-                                                    backgroundColor: 'primary.dark',
-                                                },
-                                            }}
-                                        >
-                                            <PhotoCamera />
-                                        </IconButton>
-                                    </Box>
-                                    <Typography variant="h6">{`${settings.firstName} ${settings.lastName}`}</Typography>
-                                    <Typography color="textSecondary">{settings.role}</Typography>
-                                </Paper>
-                            </Grid>
 
-                            {/* Settings Form */}
-                            <Grid item xs={12} md={8}>
-                                <Paper sx={{ p: 3 }}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Personal Information
-                                    </Typography>
-                                    <Grid container spacing={3}>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="First Name"
-                                                value={settings.firstName}
-                                                onChange={handleInputChange('firstName')}
+                        {loading && <CircularProgress />}
+                        {error && <Alert severity="error">{error}</Alert>}
+                        {!loading && settings && (
+                            <Grid container spacing={3}>
+                                <Grid item xs={12} md={4}>
+                                    <Paper sx={{ p: 3, textAlign: 'center' }}>
+                                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                                            <Avatar
+                                                src="https://www.gravatar.com/avatar?d=mp"
+                                                sx={{ width: 120, height: 120, mb: 2 }}
                                             />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Last Name"
-                                                value={settings.lastName}
-                                                onChange={handleInputChange('lastName')}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Email"
-                                                value={settings.email}
-                                                disabled
-                                                InputProps={{
-                                                    sx: disabledFieldStyle
+                                            <IconButton
+                                                sx={{
+                                                    position: 'absolute',
+                                                    bottom: 0,
+                                                    right: 0,
+                                                    backgroundColor: 'primary.main',
+                                                    color: 'white',
+                                                    '&:hover': {
+                                                        backgroundColor: 'primary.dark',
+                                                    },
                                                 }}
-                                                helperText="Email cannot be changed"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Role"
-                                                value={settings.role}
-                                                disabled
-                                                InputProps={{
-                                                    sx: disabledFieldStyle
-                                                }}
-                                                helperText="Role cannot be changed"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Department"
-                                                value={settings.department}
-                                                disabled
-                                                InputProps={{
-                                                    sx: disabledFieldStyle
-                                                }}
-                                                helperText="Department cannot be changed"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                fullWidth
-                                                label="Organization"
-                                                value={settings.organization}
-                                                disabled
-                                                InputProps={{
-                                                    sx: disabledFieldStyle
-                                                }}
-                                                helperText="Organization cannot be changed"
-                                            />
-                                        </Grid>
-                                    </Grid>
+                                            >
+                                                <PhotoCamera />
+                                            </IconButton>
+                                        </Box>
+                                        <Typography variant="h6">{`${settings.firstName} ${settings.lastName}`}</Typography>
+                                        <Typography color="textSecondary">{settings.role}</Typography>
+                                    </Paper>
+                                </Grid>
 
-                                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleSave}
-                                        >
-                                            Save Changes
-                                        </Button>
-                                    </Box>
-                                </Paper>
+                                <Grid item xs={12} md={8}>
+                                    <Paper sx={{ p: 3 }}>
+                                        <Typography variant="h6" gutterBottom>
+                                            Personal Information
+                                        </Typography>
+                                        <Grid container spacing={3}>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="First Name"
+                                                    value={settings.firstName || ''}
+                                                    onChange={handleInputChange('firstName')}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Last Name"
+                                                    value={settings.lastName || ''}
+                                                    onChange={handleInputChange('lastName')}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Email"
+                                                    value={settings.email || ''}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="Email cannot be changed"
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Role"
+                                                    value={settings.role || ''}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="Role cannot be changed"
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Department"
+                                                    value={settings.department || ''}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="Department cannot be changed"
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12} sm={6}>
+                                                <TextField
+                                                    fullWidth
+                                                    label="Organization"
+                                                    value={settings.organization || ''}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="Organization cannot be changed"
+                                                />
+                                            </Grid>
+                                        </Grid>
+                                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                                            <Button variant="contained" color="primary" onClick={handleSave}>
+                                                Save Changes
+                                            </Button>
+                                        </Box>
+                                    </Paper>
+                                </Grid>
                             </Grid>
-                        </Grid>
+                        )}
                     </Container>
                 </Box>
             </Box>
@@ -182,4 +206,4 @@ function UserSettings() {
     );
 }
 
-export default UserSettings; 
+export default UserSettings;
