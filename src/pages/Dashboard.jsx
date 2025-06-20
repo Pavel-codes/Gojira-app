@@ -38,6 +38,7 @@ const users = [
 ];
 
 function Dashboard() {
+    const { user, orgName } = useAuth();
     const [tasks, setTasks] = useState(initialTasks);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);

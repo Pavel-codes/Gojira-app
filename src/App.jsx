@@ -11,6 +11,8 @@ import Projects from './pages/Projects';
 import UserProfile from './pages/UserProfile';
 import UserSettings from './pages/UserProfile';
 import AdminDashboard from './pages/AdminDashboard';
+import AuthRedirectHandler from './pages/AuthRedirectHandler.jsx';
+import ProtectedRoute from './components/ProtectedRoute';
 import Users from './pages/Users';
 import { AuthProvider } from './context/AuthContext';
 import { CreateProvider } from './context/CreateContext';
@@ -37,20 +39,33 @@ function App() {
             <ProjectProvider>
               <Router>
                 <Routes>
-                 
-                  {/* <Route path="/" element={<Home />} /> */}
+                  <Route path="/" element={<Home />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/dashboard"
+                        element={
+                            <ProtectedRoute onlyUser>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                  />
                   <Route path="/backlog" element={<Backlog />} />
                   <Route path="/task/:id" element={<Task />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/projects" element={<Projects />} />
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/settings" element={<UserSettings />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admindashboard"
+                        element={
+                            <ProtectedRoute onlyAdmin>
+                                <AdminDashboard />
+                            </ProtectedRoute>
+                        }
+                  />
                   <Route path="/users/:orgName" element={<Users />} />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Router>
             </ProjectProvider>
