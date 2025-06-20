@@ -109,7 +109,7 @@ const Navbar = () => {
                 >
                     GoJira
                 </Typography>
-                <Button color="inherit">Your work</Button>
+                <Button color="inherit">Your work<ArrowDown></ArrowDown></Button>
                 <Button color="inherit" onClick={handleMenuOpen} sx={{ textTransform: 'none' }}>PROJECTS<ArrowDown></ArrowDown></Button>
                 <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose} PaperProps={{ sx: { width: 300, p: 0 } }}>
                     <ListSubheader>Starred</ListSubheader>

@@ -1,66 +1,128 @@
+import { useState, useEffect } from 'react';
 import {
-    Box, Typography, Paper, Button, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, Dialog, DialogTitle,
-    DialogContent, DialogActions, TextField, Select, MenuItem,
-    InputLabel, FormControl, IconButton, Container, Alert, CircularProgress
+    Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box,
+    Chip, Alert, CircularProgress
 } from '@mui/material';
+import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import { useSidebar } from '../context/SidebarContext';
-import { useProject } from '../context/ProjectContext';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import TagIcon from '@mui/icons-material/LabelOutlined';
-import PersonIcon from '@mui/icons-material/PersonOutline';
-import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
-import AssignmentIcon from '@mui/icons-material/AssignmentOutlined';
+import { Link } from 'react-router-dom';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import DescriptionIcon from '@mui/icons-material/Description';
+import FlagIcon from '@mui/icons-material/Flag';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import EventIcon from '@mui/icons-material/Event';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import config from '../config';
 
-const Projects = () => {
-    const { isSidebarOpen } = useSidebar();
-    const {
-        projects,
-        managers,
-        addOpen,
-        newProject,
-        openAddProjectModal,
-        closeAddProjectModal,
-        handleInputChange,
-        handleAddProject,
-        loading,
-        error
-    } = useProject();
+const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
 
-    const handleEditProject = (projectId) => {
-        alert(`Edit project ${projectId} - logic not implemented`);
+const initialTasksArray = [
+    {
+        id: 1,
+        title: 'Setup AWS Cognito',
+        priority: 'High',
+        description: 'Configure authentication',
+        status: 'todo',
+        creationDate: dayjs().subtract(2, 'day').toISOString(),
+        dueDate: dayjs().add(5, 'day').toISOString(),
+        assignedTo: 'Unassigned',
+        createdBy: 'Unknown',
+        projectId: '123',
+        projectName: 'Auth Setup',
+        orgName: 'TestOrg',
+        orgId: 'org1',
+        comments: []
+    }
+];
+
+function Backlog() {
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [tasks, setTasks] = useState(initialTasksArray);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const toggleSidebar = () => setSidebarOpen((open) => !open);
+
+    const fetchTasksFromAPI = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+
+            if (data && Array.isArray(data)) {
+                const transformed = data.map(task => ({
+                    id: task.taskId,
+                    title: task.taskName,
+                    priority: task.priority,
+                    description: task.description,
+                    status: task.status,
+                    creationDate: task.creationDate,
+                    dueDate: task.dueDate,
+                    assignedTo: task.assignedTo?.fullName || 'Unassigned',
+                    createdBy: task.createdBy?.fullName || 'Unknown',
+                    projectName: task.projectName || 'Unknown Project',
+                    comments: task.comments || [],
+                    projectId: task.projectId,
+                    orgName: task.orgName,
+                    orgId: task.orgId
+                }));
+                setTasks(transformed);
+            } else {
+                setError('No tasks data found in API response.');
+            }
+        } catch (error) {
+            console.error('Error fetching tasks from API:', error);
+            setError('Failed to fetch tasks from API. Using local data.');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleDeleteProject = (projectId) => {
-        if (window.confirm(`Are you sure you want to delete project ${projectId}?`)) {
-            alert(`Delete project ${projectId} - logic not implemented`);
+    useEffect(() => {
+        fetchTasksFromAPI();
+    }, []);
+
+    const getPriorityColor = (priority) => {
+        switch (priority?.toLowerCase()) {
+            case 'high': return 'error';
+            case 'medium': return 'warning';
+            case 'low': return 'success';
+            default: return 'default';
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'todo': return 'default';
+            case 'inprogress': return 'info';
+            case 'done': return 'success';
+            default: return 'default';
         }
     };
 
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar />
+            <Navbar onMenuClick={toggleSidebar} />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
                 <Box sx={{
-                    width: isSidebarOpen ? '240px' : '0',
+                    width: sidebarOpen ? '180px' : '0',
                     transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     overflow: 'hidden',
-                    flexShrink: 0,
-                    minWidth: 0,
+                    flexShrink: 0
                 }}>
                     <Sidebar />
                 </Box>
                 <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
-                    <Container maxWidth="xl" sx={{ pt: 8, pb: 4 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                            <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <AssignmentIcon /> All Projects
-                            </Typography>
-                            <Button variant="contained" onClick={openAddProjectModal}>Add Project</Button>
-                        </Box>
+                    <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
+                        <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <AssignmentIcon /> Backlog
+                        </Typography>
 
                         {loading && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
@@ -69,38 +131,52 @@ const Projects = () => {
                         )}
 
                         {error && (
-                            <Alert severity="warning" sx={{ mb: 2 }}>
-                                {error}
-                            </Alert>
+                            <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
                         )}
 
                         <TableContainer component={Paper} sx={{ boxShadow: 3, borderRadius: 2, maxHeight: '70vh' }}>
                             <Table stickyHeader>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>ID</TableCell>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell>Tag</TableCell>
-                                        <TableCell>Manager</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>Actions</TableCell>
+                                        <TableCell><AssignmentIcon fontSize="small" /> Task</TableCell>
+                                        <TableCell><DescriptionIcon fontSize="small" /> Project</TableCell>
+                                        <TableCell><DescriptionIcon fontSize="small" /> Description</TableCell>
+                                        <TableCell><FlagIcon fontSize="small" /> Priority</TableCell>
+                                        <TableCell><TimelineIcon fontSize="small" /> Status</TableCell>
+                                        <TableCell><EventIcon fontSize="small" /> Assignee</TableCell>
+                                        <TableCell><EventIcon fontSize="small" /> Creator</TableCell>
+                                        <TableCell><CalendarTodayIcon fontSize="small" /> Created</TableCell>
+                                        <TableCell><CalendarTodayIcon fontSize="small" /> Due</TableCell>
+                                        <TableCell><DescriptionIcon fontSize="small" /> Comments</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {projects.map((project) => (
-                                        <TableRow key={project.id} hover>
-                                            <TableCell>{project.id}</TableCell>
-                                            <TableCell>{project.name}</TableCell>
-                                            <TableCell>{project.tag}</TableCell>
-                                            <TableCell>{project.manager}</TableCell>
-                                            <TableCell>{project.description}</TableCell>
+                                    {tasks.map((task) => (
+                                        <TableRow key={task.id} hover>
                                             <TableCell>
-                                                <IconButton size="small" color="primary" onClick={() => handleEditProject(project.id)}>
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton size="small" color="error" onClick={() => handleDeleteProject(project.id)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
+                                                <Link to={`/task/${task.id}`} style={{ textDecoration: 'none' }}>
+                                                    {task.title}
+                                                </Link>
+                                            </TableCell>
+                                            <TableCell>{task.projectName || 'N/A'}</TableCell>
+                                            <TableCell sx={{
+                                                maxWidth: 120,
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
+                                            }}>{task.description}</TableCell>
+                                            <TableCell>
+                                                <Chip label={task.priority} color={getPriorityColor(task.priority)} size="small" />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Chip label={task.status} color={getStatusColor(task.status)} size="small" />
+                                            </TableCell>
+                                            <TableCell>{task.assignedTo}</TableCell>
+                                            <TableCell>{task.createdBy}</TableCell>
+                                            <TableCell>{dayjs(task.creationDate).format('YYYY-MM-DD')}</TableCell>
+                                            <TableCell>{dayjs(task.dueDate).format('YYYY-MM-DD')}</TableCell>
+                                            <TableCell>
+                                                <Chip label={task.comments.length} size="small" variant="outlined" />
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -108,60 +184,10 @@ const Projects = () => {
                             </Table>
                         </TableContainer>
                     </Container>
-
-                    {/* Add Project Modal */}
-                    <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
-                        <DialogTitle>Add Project</DialogTitle>
-                        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                            <TextField
-                                label="Project Name"
-                                name="name"
-                                value={newProject.name}
-                                onChange={handleInputChange}
-                                fullWidth
-                                required
-                            />
-                            <TextField
-                                label="Tag"
-                                name="tag"
-                                value={newProject.tag}
-                                onChange={handleInputChange}
-                                fullWidth
-                                inputProps={{ maxLength: 8 }}
-                                helperText="Up to 8 characters. If left blank, will be auto-generated."
-                            />
-                            <FormControl fullWidth>
-                                <InputLabel>Project Manager</InputLabel>
-                                <Select
-                                    name="manager"
-                                    value={newProject.manager}
-                                    label="Project Manager"
-                                    onChange={handleInputChange}
-                                >
-                                    {managers.map((m) => (
-                                        <MenuItem key={m} value={m}>{m}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <TextField
-                                label="Description"
-                                name="description"
-                                value={newProject.description}
-                                onChange={handleInputChange}
-                                fullWidth
-                                multiline
-                                minRows={2}
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={closeAddProjectModal}>Cancel</Button>
-                            <Button onClick={handleAddProject} variant="contained" disabled={!newProject.name}>Add</Button>
-                        </DialogActions>
-                    </Dialog>
                 </Box>
             </Box>
         </Box>
     );
-};
+}
 
-export default Projects;
+export default Backlog;
