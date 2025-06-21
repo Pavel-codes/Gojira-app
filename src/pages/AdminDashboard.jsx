@@ -4,11 +4,16 @@ import {
     Container, Paper, Typography, Box, Button, Table,
     TableBody, TableCell, TableContainer, TableHead,
     TableRow, IconButton, Dialog, DialogTitle, DialogContent,
-    DialogActions, TextField
+    DialogActions, TextField, Grid, Card, CardContent, Chip,
+    Avatar, LinearProgress, Alert, CircularProgress
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import BusinessIcon from '@mui/icons-material/Business';
+import PeopleIcon from '@mui/icons-material/People';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -99,10 +104,13 @@ function AdminDashboard() {
         }
     };
 
+    const totalUsers = organizations.reduce((sum, org) => sum + (org.users?.length || 0), 0);
+    const activeOrgs = organizations.length;
+
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
-            <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
+            <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f8f9fa' }}>
                 <Sidebar />
                 <Box sx={{ 
                     flex: 1, 
@@ -111,58 +119,309 @@ function AdminDashboard() {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
-                    <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
-                        <Typography variant="h4" gutterBottom>Admin Dashboard</Typography>
+                    <Container maxWidth={false} sx={{ mt: 2, mb: 4, px: 0 }}>
+                        {/* Header Section */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            mb: 4,
+                            pb: 2,
+                            borderBottom: '2px solid #e9ecef'
+                        }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <Avatar sx={{ 
+                                    backgroundColor: '#1976d2',
+                                    width: 48,
+                                    height: 48
+                                }}>
+                                    <AdminPanelSettingsIcon />
+                                </Avatar>
+                                <Box>
+                                    <Typography variant="h4" sx={{ 
+                                        fontWeight: 700,
+                                        color: '#2c3e50',
+                                        fontSize: { xs: '1.5rem', md: '2rem' }
+                                    }}>
+                                        Admin Dashboard
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ 
+                                        color: '#6c757d',
+                                        mt: 0.5
+                                    }}>
+                                        Manage organizations and system settings
+                                    </Typography>
+                                </Box>
+                            </Box>
+                            <Button 
+                                variant="contained" 
+                                onClick={() => handleOrgDialogOpen()}
+                                startIcon={<AddIcon />}
+                                sx={{
+                                    borderRadius: 2,
+                                    px: 3,
+                                    py: 1.5,
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                                    '&:hover': {
+                                        boxShadow: '0 6px 16px rgba(25, 118, 210, 0.4)',
+                                    }
+                                }}
+                            >
+                                New Organization
+                            </Button>
+                        </Box>
 
-                        {loading && <Typography>Loading...</Typography>}
-                        {error && <Typography color="error">{error}</Typography>}
+                        {/* Stats Cards */}
+                        <Grid container spacing={3} sx={{ mb: 4 }}>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Card sx={{ 
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    color: 'white'
+                                }}>
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Box>
+                                                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                    {activeOrgs}
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                    Organizations
+                                                </Typography>
+                                            </Box>
+                                            <BusinessIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Card sx={{ 
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+                                    color: 'white'
+                                }}>
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Box>
+                                                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                    {totalUsers}
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                    Total Users
+                                                </Typography>
+                                            </Box>
+                                            <PeopleIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Card sx={{ 
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(135deg, #2196f3 0%, #1976d2 100%)',
+                                    color: 'white'
+                                }}>
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Box>
+                                                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                    {Math.round((totalUsers / Math.max(activeOrgs, 1)) * 10) / 10}
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                    Avg Users/Org
+                                                </Typography>
+                                            </Box>
+                                            <TrendingUpIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                            <Grid item xs={12} sm={6} md={3}>
+                                <Card sx={{ 
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
+                                    color: 'white'
+                                }}>
+                                    <CardContent sx={{ p: 3 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Box>
+                                                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                                                    100%
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                    System Health
+                                                </Typography>
+                                            </Box>
+                                            <AdminPanelSettingsIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                                        </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        </Grid>
 
-                        <Paper sx={{ p: 3 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography variant="h6">Organizations</Typography>
-                                <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOrgDialogOpen()}>
-                                    New Organization
-                                </Button>
+                        {/* Loading and Error States */}
+                        {loading && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+                                <CircularProgress size={40} />
+                            </Box>
+                        )}
+
+                        {error && (
+                            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+                                {error}
+                            </Alert>
+                        )}
+
+                        {/* Organizations Table */}
+                        <Paper sx={{ 
+                            borderRadius: 3,
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                            overflow: 'hidden'
+                        }}>
+                            <Box sx={{ 
+                                p: 3, 
+                                borderBottom: '1px solid #e9ecef',
+                                bgcolor: '#fafafa'
+                            }}>
+                                <Typography variant="h6" sx={{ 
+                                    fontWeight: 600,
+                                    color: '#2c3e50'
+                                }}>
+                                    Organizations Management
+                                </Typography>
                             </Box>
                             <TableContainer>
                                 <Table>
                                     <TableHead>
-                                        <TableRow>
-                                            <TableCell>Name</TableCell>
-                                            <TableCell>Users</TableCell>
-                                            <TableCell>Created At</TableCell>
-                                            <TableCell>Actions</TableCell>
+                                        <TableRow sx={{ bgcolor: '#f8f9fa' }}>
+                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Organization</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Users</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Created</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Status</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Actions</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
                                         {organizations.map((org) => (
-                                            <TableRow key={org.id}>
+                                            <TableRow key={org.id} hover sx={{ '&:hover': { bgcolor: '#f8f9fa' } }}>
                                                 <TableCell>
-                                                    <Link to={`/users/${org.orgName}`} style={{ textDecoration: 'none', color: '#1976d2' }}>
-                                                        {org.orgName}
-                                                    </Link>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <Avatar sx={{ 
+                                                            bgcolor: '#1976d2',
+                                                            width: 32,
+                                                            height: 32,
+                                                            fontSize: '0.875rem'
+                                                        }}>
+                                                            {org.orgName?.charAt(0) || 'O'}
+                                                        </Avatar>
+                                                        <Link 
+                                                            to={`/users/${org.orgName}`} 
+                                                            style={{ 
+                                                                textDecoration: 'none', 
+                                                                color: '#1976d2',
+                                                                fontWeight: 500
+                                                            }}
+                                                        >
+                                                            {org.orgName}
+                                                        </Link>
+                                                    </Box>
                                                 </TableCell>
-                                                <TableCell>{org.users.length}</TableCell>
-                                                <TableCell>{org.createdAt}</TableCell>
                                                 <TableCell>
-                                                    <IconButton size="small" color="primary" onClick={() => handleOrgDialogOpen(org)}>
-                                                        <EditIcon />
-                                                    </IconButton>
-                                                    <IconButton size="small" color="error" onClick={() => handleDeleteOrg(org.id)}>
-                                                        <DeleteIcon />
-                                                    </IconButton>
+                                                    <Chip 
+                                                        label={org.users?.length || 0} 
+                                                        size="small" 
+                                                        sx={{ 
+                                                            bgcolor: '#e3f2fd',
+                                                            color: '#1976d2',
+                                                            fontWeight: 500
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Typography variant="body2" sx={{ color: '#6c757d' }}>
+                                                        {org.createdAt ? new Date(org.createdAt).toLocaleDateString() : 'N/A'}
+                                                    </Typography>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Chip 
+                                                        label="Active" 
+                                                        size="small" 
+                                                        sx={{ 
+                                                            bgcolor: '#e8f5e8',
+                                                            color: '#2e7d32',
+                                                            fontWeight: 500
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleOrgDialogOpen(org)}
+                                                            sx={{
+                                                                color: '#1976d2',
+                                                                '&:hover': {
+                                                                    bgcolor: '#e3f2fd'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <EditIcon fontSize="small" />
+                                                        </IconButton>
+                                                        <IconButton 
+                                                            size="small" 
+                                                            onClick={() => handleDeleteOrg(org.id)}
+                                                            sx={{
+                                                                color: '#f44336',
+                                                                '&:hover': {
+                                                                    bgcolor: '#ffebee'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <DeleteIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Box>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
+                                        {organizations.length === 0 && !loading && (
+                                            <TableRow>
+                                                <TableCell colSpan={5} sx={{ textAlign: 'center', py: 4 }}>
+                                                    <Typography variant="body2" sx={{ color: '#6c757d' }}>
+                                                        No organizations found. Create your first organization to get started.
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
                         </Paper>
 
                         {/* Organization Dialog */}
-                        <Dialog open={orgDialogOpen} onClose={handleOrgDialogClose}>
-                            <DialogTitle>{isEditing ? 'Edit Organization' : 'Create New Organization'}</DialogTitle>
-                            <DialogContent>
+                        <Dialog 
+                            open={orgDialogOpen} 
+                            onClose={handleOrgDialogClose}
+                            PaperProps={{
+                                sx: {
+                                    borderRadius: 3,
+                                    minWidth: 400
+                                }
+                            }}
+                        >
+                            <DialogTitle sx={{ 
+                                fontWeight: 600,
+                                borderBottom: '1px solid #e9ecef',
+                                pb: 2
+                            }}>
+                                {isEditing ? 'Edit Organization' : 'Create New Organization'}
+                            </DialogTitle>
+                            <DialogContent sx={{ pt: 3 }}>
                                 <TextField
                                     autoFocus
                                     margin="dense"
@@ -170,12 +429,34 @@ function AdminDashboard() {
                                     fullWidth
                                     value={newOrg.name}
                                     onChange={(e) => setNewOrg({ ...newOrg, name: e.target.value })}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            borderRadius: 2
+                                        }
+                                    }}
                                 />
                             </DialogContent>
-                            <DialogActions>
-                                <Button onClick={handleOrgDialogClose}>Cancel</Button>
-                                <Button onClick={handleCreateOrg} variant="contained">
-                                    {isEditing ? 'Save Changes' : 'Create'}
+                            <DialogActions sx={{ p: 3, pt: 1 }}>
+                                <Button 
+                                    onClick={handleOrgDialogClose}
+                                    sx={{ 
+                                        textTransform: 'none',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                    onClick={handleCreateOrg} 
+                                    variant="contained"
+                                    sx={{ 
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                        borderRadius: 2,
+                                        px: 3
+                                    }}
+                                >
+                                    {isEditing ? 'Save Changes' : 'Create Organization'}
                                 </Button>
                             </DialogActions>
                         </Dialog>

@@ -130,10 +130,10 @@ const Sidebar = () => {
                 />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                     <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
-                        John Doe
+                        {user?.profile ? `${user.profile.name} ${user.profile.family_name}` : 'Loading...'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#e3f2fd' }}>
-                        Developer
+                        {user?.profile?.role}
                     </Typography>
                 </Box>
             </Box>

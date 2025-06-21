@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-
+import { createContext, useContext, useState, useEffect } from 'react';
+import config from '../config'; // make sure this points to your actual config
 
 const AuthContext = createContext();
 
@@ -9,10 +9,9 @@ export const AuthProvider = ({ children }) => {
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
-
     const isAuthenticated = !!user;
     const groups = (user?.['cognito:groups'] || []).map(g => g.toLowerCase());
-    const isAdmin = groups.includes('admins'); // ← match exact string
+    const isAdmin = groups.includes('admins');
     const orgName = user?.['custom:organization'] || user?.organization || null;
 
     const loginWithToken = (idToken) => {
@@ -25,6 +24,28 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem('user');
         setUser(null);
     };
+
+    // ✅ Load additional user profile from your backend
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            if (!user || user.profile || !user.sub) return;
+
+            try {
+                const res = await fetch(`${config.apiBaseUrl}${config.endpoints.usersUser}?userId=${user.sub}`);
+                if (!res.ok) throw new Error('Failed to fetch profile');
+                const profile = await res.json();
+
+                setUser(prev => ({
+                    ...prev,
+                    profile // ✅ attach backend profile to user
+                }));
+            } catch (err) {
+                console.error('Error loading user profile:', err.message);
+            }
+        };
+
+        fetchUserProfile();
+    }, [user?.sub]);
 
     return (
         <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, orgName, loginWithToken, logout }}>
