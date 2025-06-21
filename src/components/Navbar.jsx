@@ -21,7 +21,7 @@ import { useProject } from '../context/ProjectContext';
 import { useAuth } from '../context/AuthContext';
 import config from '../config';
 
-const Navbar = ({ onMenuClick }) => {
+const Navbar = () => {
     const { handleCreateClick } = useCreate();
     const { toggleSidebar } = useSidebar();
     const { openAddProjectModal } = useProject();
@@ -96,11 +96,7 @@ const Navbar = ({ onMenuClick }) => {
     };
 
     const handleMenuClick = () => {
-        if (onMenuClick) {
-            onMenuClick();
-        } else {
-            toggleSidebar();
-        }
+        toggleSidebar();
     };
 
     return (

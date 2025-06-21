@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
+import { useSidebar } from '../context/SidebarContext';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DescriptionIcon from '@mui/icons-material/Description';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -37,12 +38,10 @@ const initialTasksArray = [
 ];
 
 function Backlog() {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { isSidebarOpen } = useSidebar();
     const [tasks, setTasks] = useState(initialTasksArray);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    const toggleSidebar = () => setSidebarOpen((open) => !open);
 
     const fetchTasksFromAPI = async () => {
         setLoading(true);
@@ -108,17 +107,16 @@ function Backlog() {
 
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar onMenuClick={toggleSidebar} />
+            <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
-                <Box sx={{
-                    width: sidebarOpen ? '180px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                    flexShrink: 0
+                <Sidebar />
+                <Box sx={{ 
+                    flex: 1, 
+                    p: 4, 
+                    overflow: 'auto',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
-                    <Sidebar />
-                </Box>
-                <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
                     <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <AssignmentIcon /> Backlog

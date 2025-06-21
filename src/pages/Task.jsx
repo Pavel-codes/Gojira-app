@@ -4,6 +4,7 @@ import { Container, Typography, Box, Paper, Chip, Divider, TextField, Button, Li
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { useSidebar } from '../context/SidebarContext';
 
 const initialTasks = {
     todo: [
@@ -25,13 +26,12 @@ function findTaskById(id) {
 
 function Task() {
     const { id } = useParams();
+    const { isSidebarOpen } = useSidebar();
     const task = findTaskById(id);
     const [comments, setComments] = useState([]);
     const [commentInput, setCommentInput] = useState('');
     const [editing, setEditing] = useState(false);
     const [editData, setEditData] = useState(task ? { ...task } : null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const toggleSidebar = () => setSidebarOpen((open) => !open);
 
     const handleAddComment = () => {
         if (commentInput.trim()) {
@@ -56,17 +56,16 @@ function Task() {
 
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar onMenuClick={toggleSidebar} />
+            <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
-                <Box sx={{
-                    width: sidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                    flexShrink: 0,
+                <Sidebar />
+                <Box sx={{ 
+                    flex: 1, 
+                    p: 4, 
+                    overflow: 'auto',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
-                    <Sidebar />
-                </Box>
-                <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
                     <Container maxWidth="sm" sx={{ mt: 2, mb: 4 }}>
                         <Paper sx={{ p: 3 }}>
                             {!editing ? (

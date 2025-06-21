@@ -57,21 +57,13 @@ const Projects = () => {
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f8f9fa' }}>
-                <Box sx={{
-                    width: isSidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                }}>
-                    <Sidebar />
-                </Box>
+                <Sidebar />
                 <Box sx={{ 
                     flex: 1, 
                     p: 3, 
                     overflow: 'auto',
-                    transition: 'padding 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    paddingLeft: isSidebarOpen ? 3 : 4,
-                    paddingRight: isSidebarOpen ? 3 : 4
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
                     <Container maxWidth={false} sx={{ 
                         mt: 2, 

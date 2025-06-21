@@ -12,10 +12,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import { useSidebar } from '../context/SidebarContext';
 import config from '../config';
 
 function AdminDashboard() {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const { isSidebarOpen } = useSidebar();
     const organizationsApiUrl = config.apiBaseUrl + config.endpoints.organizations;
     const [organizations, setOrganizations] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -100,17 +101,16 @@ function AdminDashboard() {
 
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+            <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
-                <Box sx={{
-                    width: sidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                    flexShrink: 0,
+                <Sidebar />
+                <Box sx={{ 
+                    flex: 1, 
+                    p: 4, 
+                    overflow: 'auto',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
-                    <Sidebar />
-                </Box>
-                <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
                     <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
                         <Typography variant="h4" gutterBottom>Admin Dashboard</Typography>
 

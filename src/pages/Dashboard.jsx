@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import {
     Container,
     Grid,
@@ -35,12 +36,12 @@ const initialTasks = { todo: [], inProgress: [], done: [] };
 function Dashboard() {
     const usersTasksApiUrl = config.apiBaseUrl + config.endpoints.tasksUser;
     const { user, orgName } = useAuth();
+    const { isSidebarOpen } = useSidebar();
     const userId = user.sub;
 
     const [tasks, setTasks] = useState(initialTasks);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
     const { logout } = useAuth();
     const navigate = useNavigate();
 
@@ -334,27 +335,17 @@ function Dashboard() {
         </Grid>
     );
 
-    const toggleSidebar = () => setSidebarOpen(prev => !prev);
-
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Navbar onMenuClick={toggleSidebar} />
+            <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f8f9fa' }}>
-                <Box sx={{
-                    width: sidebarOpen ? '240px' : '0',
-                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                }}>
-                    <Sidebar />
-                </Box>
+                <Sidebar />
                 <Box sx={{ 
                     flex: 1, 
                     p: 3, 
                     overflow: 'auto',
-                    transition: 'padding 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    paddingLeft: sidebarOpen ? 3 : 4,
-                    paddingRight: sidebarOpen ? 3 : 4
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
                 }}>
                     <Container maxWidth={false} sx={{ 
                         mt: 2, 

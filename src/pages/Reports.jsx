@@ -5,7 +5,6 @@ import { useSidebar } from '../context/SidebarContext';
 
 const Reports = () => {
     const { isSidebarOpen } = useSidebar();
-    const sidebarWidth = 240;
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -15,22 +14,15 @@ const Reports = () => {
             {/* Below navbar: sidebar + main content horizontally */}
             <Box sx={{ display: 'flex', flexGrow: 1 }}>
                 {/* Sidebar */}
-                <Box
-                    sx={{
-                        width: isSidebarOpen ? `${sidebarWidth}px` : '0px',
-                        transition: 'width 0.3s ease',
-                        overflow: 'hidden',
-                    }}
-                >
-                    <Sidebar />
-                </Box>
+                <Sidebar />
 
                 {/* Page content */}
                 <Box
                     sx={{
                         flexGrow: 1,
                         p: 3,
-                        transition: 'margin 0.3s ease',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        marginLeft: isSidebarOpen ? '240px' : '0',
                     }}
                 >
                     <Typography variant="h4" sx={{ mb: 4 }}>
