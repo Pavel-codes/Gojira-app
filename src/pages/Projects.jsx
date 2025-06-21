@@ -41,110 +41,116 @@ const Projects = () => {
     };
 
     return (
-        <Box sx={{ display: 'flex' }}>
-
-            <Box sx={{ flexGrow: 1, ml: isSidebarOpen ? '240px' : 0, transition: 'margin-left 0.3s ease' }}>
-                <Navbar />
-
-                <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h4">All Projects</Typography>
-                        <Button variant="contained" onClick={openAddProjectModal}>Add Project</Button>
-                    </Box>
-
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Navbar />
+            <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
+                <Box sx={{
+                    width: isSidebarOpen ? '240px' : '0',
+                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflow: 'hidden',
+                    flexShrink: 0,
+                }}>
                     <Sidebar />
+                </Box>
+                <Box sx={{ flex: 1, p: 4, overflow: 'auto' }}>
+                    <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                            <Typography variant="h4">All Projects</Typography>
+                            <Button variant="contained" onClick={openAddProjectModal}>Add Project</Button>
+                        </Box>
 
-                    {loading ? (
-                        <Typography>Loading projects...</Typography>
-                    ) : error ? (
-                        <Typography color="error">{error}</Typography>
-                    ) : (
-                        <TableContainer component={Paper}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />ID</TableCell>
-                                        <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Name</TableCell>
-                                        <TableCell><TagIcon fontSize="small" sx={{ mr: 1 }} />Tag</TableCell>
-                                        <TableCell><PersonIcon fontSize="small" sx={{ mr: 1 }} />Manager</TableCell>
-                                        <TableCell><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
-                                        <TableCell>Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {projects.map((project) => (
-                                        <TableRow key={project.id}>
-                                            <TableCell>{project.id}</TableCell>
-                                            <TableCell>{project.name}</TableCell>
-                                            <TableCell>{project.tag}</TableCell>
-                                            <TableCell>{project.manager}</TableCell>
-                                            <TableCell>{project.description}</TableCell>
-                                            <TableCell>
-                                                <IconButton size="small" color="primary" onClick={() => handleEditProject(project.id)}>
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton size="small" color="error" onClick={() => handleDeleteProject(project.id)}>
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </TableCell>
+                        {loading ? (
+                            <Typography>Loading projects...</Typography>
+                        ) : error ? (
+                            <Typography color="error">{error}</Typography>
+                        ) : (
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />ID</TableCell>
+                                            <TableCell><AssignmentIcon fontSize="small" sx={{ mr: 1 }} />Name</TableCell>
+                                            <TableCell><TagIcon fontSize="small" sx={{ mr: 1 }} />Tag</TableCell>
+                                            <TableCell><PersonIcon fontSize="small" sx={{ mr: 1 }} />Manager</TableCell>
+                                            <TableCell><DescriptionIcon fontSize="small" sx={{ mr: 1 }} />Description</TableCell>
+                                            <TableCell>Actions</TableCell>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
-                    )}
-                </Container>
-
-                {/* Add Project Modal */}
-                <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
-                    <DialogTitle>Add Project</DialogTitle>
-                    <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <TextField
-                            label="Project Name"
-                            name="name"
-                            value={newProject.name}
-                            onChange={handleInputChange}
-                            fullWidth
-                            required
-                        />
-                        <TextField
-                            label="Tag"
-                            name="tag"
-                            value={newProject.tag}
-                            onChange={handleInputChange}
-                            fullWidth
-                            inputProps={{ maxLength: 8 }}
-                            helperText="Up to 8 characters. If left blank, will be auto-generated."
-                        />
-                        <FormControl fullWidth>
-                            <InputLabel>Project Manager</InputLabel>
-                            <Select
-                                name="manager"
-                                value={newProject.manager}
-                                label="Project Manager"
-                                onChange={handleInputChange}
-                            >
-                                {managers.map((m) => (
-                                    <MenuItem key={m} value={m}>{m}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <TextField
-                            label="Description"
-                            name="description"
-                            value={newProject.description}
-                            onChange={handleInputChange}
-                            fullWidth
-                            multiline
-                            minRows={2}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={closeAddProjectModal}>Cancel</Button>
-                        <Button onClick={handleAddProject} variant="contained" disabled={!newProject.name}>Add</Button>
-                    </DialogActions>
-                </Dialog>
+                                    </TableHead>
+                                    <TableBody>
+                                        {projects.map((project) => (
+                                            <TableRow key={project.id}>
+                                                <TableCell>{project.id}</TableCell>
+                                                <TableCell>{project.name}</TableCell>
+                                                <TableCell>{project.tag}</TableCell>
+                                                <TableCell>{project.manager}</TableCell>
+                                                <TableCell>{project.description}</TableCell>
+                                                <TableCell>
+                                                    <IconButton size="small" color="primary" onClick={() => handleEditProject(project.id)}>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                    <IconButton size="small" color="error" onClick={() => handleDeleteProject(project.id)}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        )}
+                    </Container>
+                </Box>
             </Box>
+
+            {/* Add Project Modal */}
+            <Dialog open={addOpen} onClose={closeAddProjectModal} maxWidth="xs" fullWidth>
+                <DialogTitle>Add Project</DialogTitle>
+                <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                    <TextField
+                        label="Project Name"
+                        name="name"
+                        value={newProject.name}
+                        onChange={handleInputChange}
+                        fullWidth
+                        required
+                    />
+                    <TextField
+                        label="Tag"
+                        name="tag"
+                        value={newProject.tag}
+                        onChange={handleInputChange}
+                        fullWidth
+                        inputProps={{ maxLength: 8 }}
+                        helperText="Up to 8 characters. If left blank, will be auto-generated."
+                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Project Manager</InputLabel>
+                        <Select
+                            name="manager"
+                            value={newProject.manager}
+                            label="Project Manager"
+                            onChange={handleInputChange}
+                        >
+                            {managers.map((m) => (
+                                <MenuItem key={m} value={m}>{m}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        label="Description"
+                        name="description"
+                        value={newProject.description}
+                        onChange={handleInputChange}
+                        fullWidth
+                        multiline
+                        minRows={2}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeAddProjectModal}>Cancel</Button>
+                    <Button onClick={handleAddProject} variant="contained" disabled={!newProject.name}>Add</Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
