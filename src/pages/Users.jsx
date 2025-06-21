@@ -1,4 +1,3 @@
-// Users.jsx
 import { useEffect, useState } from 'react';
 import {
     Box, Container, Paper, Typography, Table, TableBody, TableCell,
@@ -19,19 +18,27 @@ function Users() {
     const [userDialogOpen, setUserDialogOpen] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [userGroup, setUserGroup] = useState('Admins'); // optionally get this from JWT
+
+    const availableRoles = ['User', 'Developer', 'Admin'];
+
     const [newUser, setNewUser] = useState({
-        firstName: '',
-        lastName: '',
+        name: '',
+        family_name: '',
         email: '',
-        role: 'User'
+        role: 'User',
+        organization: orgName,
+        username: '',
+        temporaryPassword: ''
     });
 
-    const usersApiUrl = config.apiBaseUrl + config.endpoints.users;
+    const usersApiUrl = config.apiBaseUrl + config.endpoints.usersUser;
+    const fetchUsersApiUrl = config.apiBaseUrl + config.endpoints.users;
 
     const fetchUsersFromAPI = async () => {
         try {
             setLoading(true);
-            const response = await fetch(`${usersApiUrl}?orgName=${encodeURIComponent(orgName)}`);
+            const response = await fetch(`${fetchUsersApiUrl}?orgName=${encodeURIComponent(orgName)}`);
             if (!response.ok) throw new Error(`User fetch failed: ${response.status}`);
             const data = await response.json();
             setUsers(data);
@@ -54,19 +61,25 @@ function Users() {
             setIsEditing(true);
             setEditingId(user.userId);
             setNewUser({
-                firstName: user.name,
-                lastName: user.family_name,
+                name: user.name,
+                family_name: user.family_name,
                 email: user.email,
                 role: user.role,
+                organization: user.organization,
+                username: user.username || '',
+                temporaryPassword: ''
             });
         } else {
             setIsEditing(false);
             setEditingId(null);
             setNewUser({
-                firstName: '',
-                lastName: '',
+                name: '',
+                family_name: '',
                 email: '',
-                role: 'User'
+                role: 'User',
+                organization: orgName,
+                username: '',
+                temporaryPassword: ''
             });
         }
         setUserDialogOpen(true);
@@ -75,43 +88,75 @@ function Users() {
     const handleUserDialogClose = () => {
         setUserDialogOpen(false);
         setNewUser({
-            firstName: '',
-            lastName: '',
+            name: '',
+            family_name: '',
             email: '',
-            role: 'User'
+            role: 'User',
+            organization: orgName,
+            username: '',
+            temporaryPassword: ''
         });
         setIsEditing(false);
         setEditingId(null);
     };
 
-    const handleCreateOrUpdateUser = async () => {
+    const handleCreateUser = async () => {
         const payload = {
-            name: newUser.firstName,
-            family_name: newUser.lastName,
             email: newUser.email,
+            name: newUser.name,
+            family_name: newUser.family_name,
             role: newUser.role,
-            organization: orgName
+            organization: newUser.organization,
+            username: newUser.username,
+            temporaryPassword: newUser.temporaryPassword
         };
 
-        try {
-            const method = isEditing ? 'PUT' : 'POST';
-            const url = isEditing ? `${usersApiUrl}/${editingId}` : usersApiUrl;
+        console.log('Creating user with payload:', JSON.stringify(payload));
 
-            const response = await fetch(url, {
-                method,
+        try {
+            const response = await fetch(usersApiUrl, {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
-                throw new Error(`Failed to ${isEditing ? 'update' : 'create'} user`);
-            }
+            if (!response.ok) throw new Error('Failed to create user');
 
             await fetchUsersFromAPI();
             handleUserDialogClose();
         } catch (error) {
-            console.error('Error creating/updating user:', error);
-            setError('Failed to save user');
+            console.error('Error creating user:', error);
+            setError('Failed to create user');
+        }
+    };
+
+    const handleUpdateUser = async () => {
+        const payload = {
+            name: newUser.name,
+            family_name: newUser.family_name,
+            email: newUser.email,
+            role: newUser.role,
+            organization: newUser.organization,
+            username: newUser.username,
+            temporaryPassword: newUser.temporaryPassword
+        };
+
+        try {
+            const response = await fetch(`${usersApiUrl}/${editingId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify(payload)
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to update user');
+
+            await fetchUsersFromAPI();
+            handleUserDialogClose();
+        } catch (error) {
+            console.error('Error updating user:', error);
+            setError('Failed to update user');
         }
     };
 
@@ -120,8 +165,13 @@ function Users() {
 
         try {
             const response = await fetch(`${usersApiUrl}/${userId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    body: JSON.stringify({ userId })
+                })
             });
+
             if (!response.ok) throw new Error('Delete failed');
             await fetchUsersFromAPI();
         } catch (err) {
@@ -135,7 +185,11 @@ function Users() {
             <Container maxWidth="lg" sx={{ mt: 4 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="h4">Users for Organization: {orgName}</Typography>
-                    <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleUserDialogOpen()}>New User</Button>
+                    {userGroup === 'Admins' && (
+                        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleUserDialogOpen()}>
+                            New User
+                        </Button>
+                    )}
                 </Box>
                 {loading && <Typography>Loading...</Typography>}
                 {error && <Typography color="error">{error}</Typography>}
@@ -159,12 +213,16 @@ function Users() {
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>{user.role}</TableCell>
                                         <TableCell>
-                                            <IconButton size="small" color="primary" onClick={() => handleUserDialogOpen(user)}>
-                                                <EditIcon />
-                                            </IconButton>
-                                            <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.userId)}>
-                                                <DeleteIcon />
-                                            </IconButton>
+                                            {userGroup === 'Admins' && (
+                                                <>
+                                                    <IconButton size="small" color="primary" onClick={() => handleUserDialogOpen(user)}>
+                                                        <EditIcon />
+                                                    </IconButton>
+                                                    <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.userId)}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -184,16 +242,16 @@ function Users() {
                             label="First Name"
                             fullWidth
                             margin="dense"
-                            value={newUser.firstName}
-                            onChange={(e) => setNewUser({ ...newUser, firstName: e.target.value })}
+                            value={newUser.name}
+                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                             required
                         />
                         <TextField
                             label="Last Name"
                             fullWidth
                             margin="dense"
-                            value={newUser.lastName}
-                            onChange={(e) => setNewUser({ ...newUser, lastName: e.target.value })}
+                            value={newUser.family_name}
+                            onChange={(e) => setNewUser({ ...newUser, family_name: e.target.value })}
                             required
                         />
                         <TextField
@@ -206,16 +264,50 @@ function Users() {
                             required
                         />
                         <TextField
+                            select
                             label="Role"
                             fullWidth
                             margin="dense"
                             value={newUser.role}
                             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                            SelectProps={{ native: true }}
+                        >
+                            {availableRoles.map((role) => (
+                                <option key={role} value={role}>{role}</option>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="Username"
+                            fullWidth
+                            margin="dense"
+                            value={newUser.username}
+                            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                            required
+                        />
+                        <TextField
+                            label="Temporary Password"
+                            fullWidth
+                            margin="dense"
+                            type="password"
+                            value={newUser.temporaryPassword}
+                            onChange={(e) => setNewUser({ ...newUser, temporaryPassword: e.target.value })}
+                            required
                         />
                     </DialogContent>
+
                     <DialogActions>
                         <Button onClick={handleUserDialogClose}>Cancel</Button>
-                        <Button onClick={handleCreateOrUpdateUser} variant="contained" disabled={!newUser.firstName || !newUser.lastName || !newUser.email}>
+                        <Button
+                            onClick={isEditing ? handleUpdateUser : handleCreateUser}
+                            variant="contained"
+                            disabled={
+                                !newUser.name ||
+                                !newUser.family_name ||
+                                !newUser.email ||
+                                !newUser.username ||
+                                !newUser.temporaryPassword
+                            }
+                        >
                             {isEditing ? 'Save Changes' : 'Create'}
                         </Button>
                     </DialogActions>
