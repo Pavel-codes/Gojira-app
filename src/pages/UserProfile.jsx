@@ -27,6 +27,8 @@ function UserSettings() {
         const fetchUserData = async () => {
             const loggedUser = JSON.parse(sessionStorage.getItem('user'));
             const userId = loggedUser.sub; // Assuming it's already stored on login
+            const usersApiUrl = config.apiBaseUrl + config.endpoints.usersUser;
+            // console.log('Debug - userId:', userId);
 
             if (!userId) {
                 setError('User ID not found in session');
@@ -35,7 +37,7 @@ function UserSettings() {
             }
 
             try {
-                const response = await fetch(`${config.apiBaseUrl}/Users/user/${userId}`, {
+                const response = await fetch(`${usersApiUrl}?userId=${userId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -122,7 +124,7 @@ function UserSettings() {
                                                 <PhotoCamera />
                                             </IconButton>
                                         </Box>
-                                        <Typography variant="h6">{`${settings.firstName} ${settings.lastName}`}</Typography>
+                                        <Typography variant="h6">{`${settings.name} ${settings.family_name}`}</Typography>
                                         <Typography color="textSecondary">{settings.role}</Typography>
                                     </Paper>
                                 </Grid>
