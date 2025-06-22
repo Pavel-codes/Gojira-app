@@ -4,7 +4,6 @@ import {
     ListItem,
     ListItemIcon,
     ListItemText,
-    Divider,
     Typography,
     Avatar,
 } from '@mui/material';
@@ -22,40 +21,16 @@ const sidebarWidth = 240;
 
 const Sidebar = () => {
     const { isSidebarOpen } = useSidebar();
-    const { user, orgName } = useAuth();
+    const { user, orgName, isAdmin } = useAuth();
     const location = useLocation();
 
     const menuItems = [
-        {
-            text: 'Dashboard',
-            icon: <DashboardIcon />,
-            path: '/dashboard'
-        },
-        {
-            text: 'Backlog',
-            icon: <ListAltIcon />,
-            path: '/backlog'
-        },
-        {
-            text: 'Board',
-            icon: <AssignmentIcon />,
-            path: '/board'
-        },
-        {
-            text: 'Reports',
-            icon: <BarChartIcon />,
-            path: '/reports'
-        },
-        {
-            text: 'Team',
-            icon: <PeopleIcon />,
-            path: '/team'
-        },
-        {
-            text: 'Settings',
-            icon: <SettingsIcon />,
-            path: '/settings'
-        }
+        { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+        { text: 'Backlog', icon: <ListAltIcon />, path: '/backlog' },
+        { text: 'Board', icon: <AssignmentIcon />, path: '/board' },
+        { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
+        { text: 'Team', icon: <PeopleIcon />, path: '/team' },
+        { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
     ];
 
     const isActive = (path) => location.pathname === path;
@@ -78,7 +53,7 @@ const Sidebar = () => {
                 overflow: 'hidden',
             }}
         >
-            {/* Simple Header */}
+            {/* Header */}
             <Box sx={{
                 p: 3,
                 borderBottom: '1px solid #1565c0',
@@ -100,43 +75,39 @@ const Sidebar = () => {
                 }}>
                     G
                 </Box>
-                <Typography 
-                    variant="h6" 
-                    sx={{ 
-                        fontWeight: 600,
-                        color: 'white'
-                    }}
-                >
+                <Typography variant="h6" sx={{ fontWeight: 600, color: 'white' }}>
                     GoJira
                 </Typography>
             </Box>
 
-            {/* User Info */}
-            <Box sx={{
-                p: 2,
-                borderBottom: '1px solid #1565c0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2
-            }}>
-                <Avatar 
-                    sx={{ 
-                        width: 36, 
-                        height: 36,
-                        bgcolor: 'white',
-                        color: '#1976d2'
-                    }}
-                    src="https://www.gravatar.com/avatar?d=mp"
-                />
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
-                        {user?.profile ? `${user.profile.name} ${user.profile.family_name}` : 'Loading...'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#e3f2fd' }}>
-                        {user?.profile?.role}
-                    </Typography>
+            {/* User Info (Hidden for Admins) */}
+            {!isAdmin && (
+                <Box sx={{
+                    p: 2,
+                    borderBottom: '1px solid #1565c0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                }}>
+                    <Avatar 
+                        sx={{ 
+                            width: 36, 
+                            height: 36,
+                            bgcolor: 'white',
+                            color: '#1976d2'
+                        }}
+                        src="https://www.gravatar.com/avatar?d=mp"
+                    />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="body2" sx={{ color: 'white', fontWeight: 500 }}>
+                            {user?.profile ? `${user.profile.name} ${user.profile.family_name}` : 'Loading...'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#e3f2fd' }}>
+                            {user?.profile?.role}
+                        </Typography>
+                    </Box>
                 </Box>
-            </Box>
+            )}
 
             {/* Navigation */}
             <Box sx={{ p: 1, mt: 1 }}>
@@ -161,10 +132,7 @@ const Sidebar = () => {
                                 minHeight: 48
                             }}
                         >
-                            <ListItemIcon sx={{ 
-                                color: 'inherit',
-                                minWidth: 40
-                            }}>
+                            <ListItemIcon sx={{ color: 'inherit', minWidth: 40 }}>
                                 {item.icon}
                             </ListItemIcon>
                             <ListItemText 
