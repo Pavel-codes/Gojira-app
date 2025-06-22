@@ -14,10 +14,13 @@ import AdminDashboard from './pages/AdminDashboard';
 import AuthRedirectHandler from './pages/AuthRedirectHandler.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import Users from './pages/Users';
+import Team from './pages/Team.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { CreateProvider } from './context/CreateContext';
 import { SidebarProvider } from './context/SidebarContext';
 import { ProjectProvider } from './context/ProjectContext';
+import { UsersProvider } from './context/UsersContext';
+
 
 const theme = createTheme({
   palette: {
@@ -37,6 +40,7 @@ function App() {
         <CreateProvider>
           <SidebarProvider>
             <ProjectProvider>
+              <UsersProvider>
               <Router>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -54,6 +58,7 @@ function App() {
                   <Route path="/backlog" element={<Backlog />} />
                   <Route path="/task/:id" element={<Task />} />
                   <Route path="/reports" element={<Reports />} />
+                  <Route path="/team" element={<Team />} />
                   <Route path="/projects" element={<Projects />} />
                   <Route path="/profile" element={<UserProfile />} />
                   <Route path="/settings" element={<UserSettings />} />
@@ -68,6 +73,7 @@ function App() {
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Router>
+              </UsersProvider>
             </ProjectProvider>
           </SidebarProvider>
         </CreateProvider>

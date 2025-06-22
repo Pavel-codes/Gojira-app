@@ -1,60 +1,39 @@
-import { createContext, useState, useContext, useEffect } from 'react';
+// context/UsersContext.js
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import config from '../config';
 
-const apiUrl = config.apiBaseUrl + config.endpoints.users;
-const UsersContext = createContext(null);
+const UsersContext = createContext();
 
 export const UsersProvider = ({ children }) => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [usersError, setUsersError] = useState(null);
+  const orgName = 'TechNova'; // Can be dynamic if needed
 
-    const fetchUsersFromAPI = async () => {
-        setLoading(true);
-        setError(null);
+  const fetchUsersFromAPI = async () => {
+    try {
+      setLoadingUsers(true);
+      const response = await fetch(`${config.apiBaseUrl + config.endpoints.users}?orgName=${encodeURIComponent(orgName)}`);
+      if (!response.ok) throw new Error(`User fetch failed: ${response.status}`);
+      const data = await response.json();
+      setUsers(data);
+    } catch (err) {
+      console.error('No users in this org', err);
+      setUsersError('No users found for this organization');
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
-        try {
-            const response = await fetch(apiUrl, { method: 'GET' });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  useEffect(() => {
+    if (orgName) fetchUsersFromAPI();
+  }, [orgName]);
 
-            const data = await response.json();
-
-            if (Array.isArray(data)) {
-                const transformed = data.map(user => ({
-                    id: user.userId,
-                    email: user.email,
-                    name: user.name,
-                    familyName: user.family_name,
-                    role: user.role,
-                    organization: user.organization,
-                    username: user.username,
-                }));
-                setUsers(transformed);
-            } else {
-                console.warn('❌ API response is not an array:', data);
-                setError('No user data found in API response.');
-            }
-        } catch (error) {
-            console.error('Error fetching users from API:', error);
-            setError('Failed to fetch users from API.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchUsersFromAPI();
-    }, []);
-
-    return (
-        <UsersContext.Provider value={{ users, loading, error, fetchUsersFromAPI }}>
-            {children}
-        </UsersContext.Provider>
-    );
+  return (
+    <UsersContext.Provider value={{ users, loadingUsers, usersError }}>
+      {children}
+    </UsersContext.Provider>
+  );
 };
 
-export const useUsers = () => {
-    const context = useContext(UsersContext);
-    if (!context) throw new Error('useUsers must be used within a UsersProvider');
-    return context;
-};
+export const useUsers = () => useContext(UsersContext);
