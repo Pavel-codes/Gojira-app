@@ -17,6 +17,7 @@ import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
 import AssignmentIcon from '@mui/icons-material/AssignmentOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import BusinessIcon from '@mui/icons-material/Business';
+import CircleIcon from '@mui/icons-material/Circle';
 
 const Projects = () => {
     const { isSidebarOpen } = useSidebar();
@@ -255,16 +256,6 @@ const Projects = () => {
                                                     borderBottom: '2px solid #e9ecef'
                                                 }}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <AssignmentIcon fontSize="small" />
-                                                        ID
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell sx={{ 
-                                                    fontWeight: 600,
-                                                    color: '#2c3e50',
-                                                    borderBottom: '2px solid #e9ecef'
-                                                }}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <BusinessIcon fontSize="small" />
                                                         Name
                                                     </Box>
@@ -304,6 +295,16 @@ const Projects = () => {
                                                     color: '#2c3e50',
                                                     borderBottom: '2px solid #e9ecef'
                                                 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <CircleIcon fontSize="small" />
+                                                        Status
+                                                    </Box>
+                                                </TableCell>
+                                                <TableCell sx={{ 
+                                                    fontWeight: 600,
+                                                    color: '#2c3e50',
+                                                    borderBottom: '2px solid #e9ecef'
+                                                }}>
                                                     Actions
                                                 </TableCell>
                                             </TableRow>
@@ -320,34 +321,13 @@ const Projects = () => {
                                                         '&:last-child td': { border: 0 }
                                                     }}
                                                 >
-                                                    <TableCell sx={{ 
-                                                        fontWeight: 500,
-                                                        color: '#2c3e50'
-                                                    }}>
-                                                        #{project.id}
-                                                    </TableCell>
                                                     <TableCell>
-                                                        <Box>
-                                                            <Typography variant="body1" sx={{ 
-                                                                fontWeight: 600,
-                                                                color: '#2c3e50'
-                                                            }}>
-                                                                {project.name}
-                                                            </Typography>
-                                                            {project.status && (
-                                                                <Chip 
-                                                                    label={project.status}
-                                                                    size="small"
-                                                                    sx={{ 
-                                                                        backgroundColor: getProjectStatusColor(project.status),
-                                                                        color: 'white',
-                                                                        fontSize: '0.7rem',
-                                                                        height: 20,
-                                                                        mt: 0.5
-                                                                    }}
-                                                                />
-                                                            )}
-                                                        </Box>
+                                                        <Typography variant="body1" sx={{ 
+                                                            fontWeight: 600,
+                                                            color: '#2c3e50'
+                                                        }}>
+                                                            {project.name}
+                                                        </Typography>
                                                     </TableCell>
                                                     <TableCell>
                                                         <Chip 
@@ -386,6 +366,19 @@ const Projects = () => {
                                                         }}>
                                                             {project.description || 'No description'}
                                                         </Typography>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Chip 
+                                                            label={project.status || 'WIP'}
+                                                            size="small"
+                                                            sx={{ 
+                                                                backgroundColor: getProjectStatusColor(project.status || 'WIP'),
+                                                                color: 'white',
+                                                                fontSize: '0.7rem',
+                                                                height: 20,
+                                                                minWidth: 60
+                                                            }}
+                                                        />
                                                     </TableCell>
                                                     <TableCell>
                                                         <Box sx={{ display: 'flex', gap: 1 }}>
