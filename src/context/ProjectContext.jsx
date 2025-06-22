@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { useUsers } from './UsersContext';
 import config from '../config';
 
 const apiUrl = config.apiBaseUrl + config.endpoints.projects;
@@ -10,6 +11,7 @@ export const ProjectProvider = ({ children }) => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { orgName } = useUsers();
 
     const [addOpen, setAddOpen] = useState(false);
     const [newProject, setNewProject] = useState({
@@ -20,11 +22,18 @@ export const ProjectProvider = ({ children }) => {
     });
 
     const fetchProjectsFromAPI = async () => {
+        if (!orgName) {
+            console.warn('Organization name not available, skipping project fetch');
+            return;
+        }
+        console.log('ProjectContext orgName:', orgName);
         setLoading(true);
         setError(null);
     
+        const queryUrl = `${apiUrl}?orgName=${encodeURIComponent(orgName)}`;
+    
         try {
-            const response = await fetch(apiUrl, { method: 'GET' });
+            const response = await fetch(queryUrl);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
             const data = await response.json();
@@ -55,8 +64,8 @@ export const ProjectProvider = ({ children }) => {
     
 
     useEffect(() => {
-        fetchProjectsFromAPI();
-    }, []);
+        if (orgName) fetchProjectsFromAPI();
+    }, [orgName]);
 
     const openAddProjectModal = () => setAddOpen(true);
     const closeAddProjectModal = () => setAddOpen(false);

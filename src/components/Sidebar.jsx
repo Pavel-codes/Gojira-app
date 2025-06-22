@@ -24,14 +24,16 @@ const Sidebar = () => {
     const { user, orgName, isAdmin } = useAuth();
     const location = useLocation();
 
-    const menuItems = [
-        { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-        { text: 'Backlog', icon: <ListAltIcon />, path: '/backlog' },
-        { text: 'Board', icon: <AssignmentIcon />, path: '/board' },
-        { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
-        { text: 'Team', icon: <PeopleIcon />, path: '/team' },
-        { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
-    ];
+    const menuItems = isAdmin 
+        ? [{ text: 'Board', icon: <AssignmentIcon />, path: '/board' }]
+        : [
+            { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+            { text: 'Backlog', icon: <ListAltIcon />, path: '/backlog' },
+            { text: 'Board', icon: <AssignmentIcon />, path: '/board' },
+            { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
+            { text: 'Team', icon: <PeopleIcon />, path: '/team' },
+            { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
+        ];
 
     const isActive = (path) => location.pathname === path;
 

@@ -1,6 +1,7 @@
 // context/UsersContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import config from '../config';
+import { useAuth } from './AuthContext'; // <--- IMPORT useAuth
 
 const UsersContext = createContext();
 
@@ -8,7 +9,7 @@ export const UsersProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [usersError, setUsersError] = useState(null);
-  const orgName = 'TechNova'; // Can be dynamic if needed
+  const { user: loggedInUser, orgName } = useAuth(); // <--- USE useAuth TO GET loggedInUser and orgName
 
   const fetchUsersFromAPI = async () => {
     try {
@@ -26,11 +27,13 @@ export const UsersProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // Add console log here to confirm orgName is received
+    console.log('UsersContext useEffect - orgName:', orgName);
     if (orgName) fetchUsersFromAPI();
-  }, [orgName]);
+  }, [orgName]); // Dependency is orgName from AuthContext
 
   return (
-    <UsersContext.Provider value={{ users, loadingUsers, usersError }}>
+    <UsersContext.Provider value={{ users, loadingUsers, usersError, orgName }}>
       {children}
     </UsersContext.Provider>
   );

@@ -18,7 +18,7 @@ function Home() {
             const domain = config.cognitoUrl;
             const redirectUri = config.cognitoRedirectUri;
             const responseType = 'token';
-            const scopes = 'openid+email';
+            const scopes = 'openid+email+profile';
 
             const cognitoUrl = `${domain}/login?client_id=${clientId}&response_type=${responseType}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}`;
             window.location.href = cognitoUrl;

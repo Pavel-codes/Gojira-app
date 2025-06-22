@@ -57,9 +57,7 @@ function Dashboard() {
                 }
             });
 
-            console.log('Response:', response);
             const result = await response.json();
-            console.log('Result:', result);
     
             const tasksByStatus = { todo: [], inProgress: [], done: [] };
             result.forEach(task => {

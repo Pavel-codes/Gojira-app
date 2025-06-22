@@ -476,9 +476,13 @@ const Projects = () => {
                     }}>
                         <AddIcon />
                     </Avatar>
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#2c3e50' }}>
+                    <Box component="span" sx={{ 
+                        fontWeight: 600, 
+                        color: '#2c3e50',
+                        fontSize: '1.25rem'
+                    }}>
                         Add New Project
-                    </Typography>
+                    </Box>
                 </DialogTitle>
                 <DialogContent sx={{ 
                     display: 'flex', 

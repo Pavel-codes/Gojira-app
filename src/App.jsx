@@ -39,8 +39,8 @@ function App() {
       <AuthProvider>
         <CreateProvider>
           <SidebarProvider>
-            <ProjectProvider>
-              <UsersProvider>
+            <UsersProvider>
+              <ProjectProvider>
               <Router>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -73,8 +73,8 @@ function App() {
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Router>
-              </UsersProvider>
-            </ProjectProvider>
+              </ProjectProvider>
+          </UsersProvider>
           </SidebarProvider>
         </CreateProvider>
       </AuthProvider>
