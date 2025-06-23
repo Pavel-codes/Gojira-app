@@ -74,8 +74,9 @@ function AdminDashboard() {
     // Handlers for Organization Dialog
     const handleOrgDialogOpen = (org = null) => {
         if (org) {
+            console.log("Opening edit dialog for org:", org);
             setIsEditingOrg(true);
-            setEditingOrgId(org.id);
+            setEditingOrgId(org.orgId || org.id); // Try orgId first, fallback to id
             setNewOrg({ name: org.orgName }); // Use orgName property
         } else {
             setIsEditingOrg(false);
@@ -92,52 +93,57 @@ function AdminDashboard() {
         setEditingOrgId(null);
     };
 
-    const handleCreateOrg = async (org) => {
+    const handleCreateOrg = async () => {
         setError(null);
-        if (isEditingOrg) {
+        try {
+            const response = await fetch(organizationsApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orgName: newOrg.name, users: [] }) // Ensure payload matches API expectation
+            });
 
-            const editedPayload = {
-                orgId: editingOrgId,
-                orgName: newOrg.name,
-                status: "Active"
-              }
-
-            try {
-                const response = await fetch(`${organizationsApiUrl}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(editedPayload) // Adjust payload as per your API
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed to update organization. Status: ${response.status}`);
-                }
-                await fetchOrganizationsFromAPI(); // Re-fetch to get updated data
-            } catch (err) {
-                console.error('Error updating organization:', err);
-                setError('Failed to update organization');
+            if (!response.ok) {
+                throw new Error(`Failed to create organization. Status: ${response.status}`);
             }
-        } else {
-            try {
-                const response = await fetch(organizationsApiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ orgName: newOrg.name, users: [] }) // Ensure payload matches API expectation
-                });
 
-                if (!response.ok) {
-                    throw new Error(`Failed to create organization. Status: ${response.status}`);
-                }
+            await fetchOrganizationsFromAPI(); // Re-fetch to get new organization
+        } catch (err) {
+            console.error('Error creating organization:', err);
+            setError('Failed to create organization');
+        }
+        handleOrgDialogClose();
+    };
 
-                await fetchOrganizationsFromAPI(); // Re-fetch to get new organization
-            } catch (err) {
-                console.error('Error creating organization:', err);
-                setError('Failed to create organization');
+    const handleEditOrg = async () => {
+        console.log("Editing organization:", editingOrgId);
+        console.log("Current newOrg:", newOrg);
+        setError(null);
+        const editedPayload = {
+            orgId: editingOrgId,
+            orgName: newOrg.name,
+            orgStatus: "Active"
+        };
+        console.log("Sending payload:", editedPayload);
+
+        try {
+
+            const response = await fetch(organizationsApiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(editedPayload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update organization. Status: ${response.status}`);
             }
+            await fetchOrganizationsFromAPI(); // Re-fetch to get updated data
+        } catch (err) {
+            console.error('Error updating organization:', err);
+            setError('Failed to update organization');
         }
         handleOrgDialogClose();
     };
@@ -600,7 +606,7 @@ function AdminDashboard() {
                                     Cancel
                                 </Button>
                                 <Button 
-                                    onClick={handleCreateOrg} 
+                                    onClick={isEditingOrg ? handleEditOrg : handleCreateOrg} 
                                     variant="contained"
                                     sx={{ 
                                         textTransform: 'none',
