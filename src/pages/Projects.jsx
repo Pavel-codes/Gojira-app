@@ -3,7 +3,7 @@ import {
     TableContainer, TableHead, TableRow, Dialog, DialogTitle,
     DialogContent, DialogActions, TextField, Select, MenuItem,
     InputLabel, FormControl, IconButton, Container, Chip, Card,
-    CardContent, Grid, Tooltip, Avatar, Divider
+    CardContent, Grid, Tooltip, Avatar, Divider, CircularProgress
 } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
@@ -18,6 +18,8 @@ import AssignmentIcon from '@mui/icons-material/AssignmentOutlined';
 import AddIcon from '@mui/icons-material/Add';
 import BusinessIcon from '@mui/icons-material/Business';
 import CircleIcon from '@mui/icons-material/Circle';
+import { useState } from 'react';
+import config from '../config';
 
 const Projects = () => {
     const { isSidebarOpen } = useSidebar();
@@ -34,14 +36,207 @@ const Projects = () => {
         error
     } = useProject();
 
-    const handleEditProject = (projectId) => {
-        alert(`Edit project ${projectId} - logic not implemented`);
+    // Edit project state
+    const [editOpen, setEditOpen] = useState(false);
+    const [editingProject, setEditingProject] = useState(null);
+    const [editLoading, setEditLoading] = useState(false);
+    const [editError, setEditError] = useState(null);
+
+    // Delete project state
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [deleteError, setDeleteError] = useState(null);
+    const [deletingProjectId, setDeletingProjectId] = useState(null);
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState(null);
+
+    const handleEditProject = async (projectId) => {
+        if (!projectId) {
+            console.error('Project ID is required for editing');
+            return;
+        }
+
+        try {
+            setEditLoading(true);
+            setEditError(null);
+
+            // Find the project to edit
+            const projectToEdit = projects.find(p => p.id === projectId);
+            if (!projectToEdit) {
+                throw new Error('Project not found');
+            }
+
+            // Set the project data for editing
+            setEditingProject({
+                id: projectToEdit.id,
+                name: projectToEdit.name || '',
+                tag: projectToEdit.tag || '',
+                manager: projectToEdit.manager || '',
+                description: projectToEdit.description || '',
+                status: projectToEdit.status || 'WIP'
+            });
+
+            // Open edit modal
+            setEditOpen(true);
+
+        } catch (error) {
+            console.error('Error preparing project for edit:', error);
+            setEditError(error.message || 'Failed to load project for editing');
+        } finally {
+            setEditLoading(false);
+        }
     };
 
-    const handleDeleteProject = (projectId) => {
-        if (window.confirm(`Are you sure you want to delete project ${projectId}?`)) {
-            alert(`Delete project ${projectId} - logic not implemented`);
+    const handleUpdateProject = async () => {
+        if (!editingProject || !editingProject.id) {
+            setEditError('Invalid project data');
+            return;
         }
+
+        try {
+            setEditLoading(true);
+            setEditError(null);
+
+
+            const updateProjectApi = `${config.apiBaseUrl}${config.endpoints.projects}`;
+            console.log('api endpoint:', updateProjectApi);
+            
+            // The projectId MUST be in the body for your current Lambda.
+            // Assuming editingProject.id holds the projectId
+            const projectId = editingProject.id;
+            
+            // Construct the payload with keys matching what your Lambda expects
+            const payload = {
+                projectId: projectId,
+                projectName: editingProject.name, 
+                projectTag: editingProject.tag,
+                projectManager: editingProject.manager,
+                description: editingProject.description, 
+                projectStatus: editingProject.status
+            };
+            
+            // It should be a simple PUT to the base projects endpoint.
+            const response = await fetch(updateProjectApi, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const updatedProject = await response.json();
+            console.log('Project updated successfully:', updatedProject);
+
+            // Close modal and reset state
+            setEditOpen(false);
+            setEditingProject(null);
+            setEditError(null);
+
+            // You might want to refresh the projects list here
+            // or update the local state with the new data
+            window.location.reload(); // Simple refresh for now
+
+        } catch (error) {
+            console.error('Error updating project:', error);
+            setEditError(error.message || 'Failed to update project');
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
+    const handleEditInputChange = (field, value) => {
+        setEditingProject(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const closeEditModal = () => {
+        setEditOpen(false);
+        setEditingProject(null);
+        setEditError(null);
+    };
+
+    const handleDeleteProject = async (projectId) => {
+        if (!projectId) {
+            console.error('Project ID is required for deletion');
+            return;
+        }
+
+        // Find the project to show in confirmation dialog
+        const project = projects.find(p => p.id === projectId);
+        if (!project) {
+            console.error('Project not found');
+            return;
+        }
+
+        // Set the project to delete and open confirmation dialog
+        setProjectToDelete(project);
+        setDeleteConfirmOpen(true);
+    };
+
+    const confirmDeleteProject = async () => {
+        if (!projectToDelete) {
+            return;
+        }
+
+        try {
+            setDeleteLoading(true);
+            setDeleteError(null);
+            setDeletingProjectId(projectToDelete.id);
+
+            const deleteProjectApi = `${config.apiBaseUrl}${config.endpoints.projects}`;
+            console.log('Delete API endpoint:', deleteProjectApi);
+
+            // Use query string parameter for projectId instead of request body
+            const deleteUrl = `${deleteProjectApi}?projectId=${encodeURIComponent(projectToDelete.id)}`;
+
+            // Make DELETE request to the projects endpoint with query parameter
+            const response = await fetch(deleteUrl, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+                // No body needed since we're using query parameters
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const deleteResult = await response.json();
+            console.log('Project deleted successfully:', deleteResult);
+
+            // Close confirmation dialog
+            setDeleteConfirmOpen(false);
+            setProjectToDelete(null);
+
+            // Show success message
+            alert(`Project "${projectToDelete.name}" has been deleted successfully!`);
+
+            // Refresh the page to update the projects list
+            window.location.reload();
+
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            setDeleteError(error.message || 'Failed to delete project');
+            alert(`Error deleting project: ${error.message}`);
+        } finally {
+            setDeleteLoading(false);
+            setDeletingProjectId(null);
+        }
+    };
+
+    const cancelDeleteProject = () => {
+        setDeleteConfirmOpen(false);
+        setProjectToDelete(null);
+        setDeleteError(null);
     };
 
     const getProjectStatusColor = (status) => {
@@ -400,14 +595,19 @@ const Projects = () => {
                                                                 <IconButton 
                                                                     size="small" 
                                                                     onClick={() => handleDeleteProject(project.id)}
+                                                                    disabled={deleteLoading && deletingProjectId === project.id}
                                                                     sx={{
-                                                                        color: '#f44336',
+                                                                        color: deleteLoading && deletingProjectId === project.id ? '#ccc' : '#f44336',
                                                                         '&:hover': {
-                                                                            backgroundColor: '#ffebee'
+                                                                            backgroundColor: deleteLoading && deletingProjectId === project.id ? 'transparent' : '#ffebee'
                                                                         }
                                                                     }}
                                                                 >
-                                                                    <DeleteIcon fontSize="small" />
+                                                                    {deleteLoading && deletingProjectId === project.id ? (
+                                                                        <CircularProgress size={16} color="inherit" />
+                                                                    ) : (
+                                                                        <DeleteIcon fontSize="small" />
+                                                                    )}
                                                                 </IconButton>
                                                             </Tooltip>
                                                         </Box>
@@ -570,6 +770,293 @@ const Projects = () => {
                         }}
                     >
                         Add Project
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Edit Project Modal */}
+            <Dialog 
+                open={editOpen} 
+                onClose={closeEditModal} 
+                maxWidth="sm" 
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)'
+                    }
+                }}
+            >
+                <DialogTitle sx={{ 
+                    pb: 1,
+                    borderBottom: '2px solid #e9ecef',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                }}>
+                    <Avatar sx={{ 
+                        backgroundColor: '#1976d2',
+                        width: 40,
+                        height: 40
+                    }}>
+                        <EditIcon />
+                    </Avatar>
+                    <Box component="span" sx={{ 
+                        fontWeight: 600, 
+                        color: '#2c3e50',
+                        fontSize: '1.25rem'
+                    }}>
+                        Edit Project
+                    </Box>
+                </DialogTitle>
+                <DialogContent sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 3, 
+                    mt: 2,
+                    pt: 2
+                }}>
+                    <TextField
+                        label="Project Name"
+                        name="name"
+                        value={editingProject?.name}
+                        onChange={(e) => handleEditInputChange('name', e.target.value)}
+                        fullWidth
+                        required
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2
+                            }
+                        }}
+                    />
+                    <TextField
+                        label="Tag"
+                        name="tag"
+                        value={editingProject?.tag}
+                        onChange={(e) => handleEditInputChange('tag', e.target.value)}
+                        fullWidth
+                        inputProps={{ maxLength: 8 }}
+                        helperText="Up to 8 characters. If left blank, will be auto-generated."
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2
+                            }
+                        }}
+                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Project Manager</InputLabel>
+                        <Select
+                            name="manager"
+                            value={editingProject?.manager}
+                            label="Project Manager"
+                            onChange={(e) => handleEditInputChange('manager', e.target.value)}
+                            sx={{
+                                borderRadius: 2
+                            }}
+                        >
+                            {managers.map((m) => (
+                                <MenuItem key={m} value={m}>{m}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        label="Description"
+                        name="description"
+                        value={editingProject?.description}
+                        onChange={(e) => handleEditInputChange('description', e.target.value)}
+                        fullWidth
+                        multiline
+                        minRows={3}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2
+                            }
+                        }}
+                    />
+                    <FormControl fullWidth>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            name="status"
+                            value={editingProject?.status}
+                            label="Status"
+                            onChange={(e) => handleEditInputChange('status', e.target.value)}
+                            sx={{
+                                borderRadius: 2
+                            }}
+                        >
+                            <MenuItem value="Active">Active</MenuItem>
+                            <MenuItem value="Completed">Completed</MenuItem>
+                            <MenuItem value="On Hold">On Hold</MenuItem>
+                            <MenuItem value="Cancelled">Cancelled</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button 
+                        onClick={closeEditModal}
+                        sx={{
+                            borderRadius: 2,
+                            px: 3,
+                            textTransform: 'none',
+                            fontWeight: 500
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleUpdateProject} 
+                        variant="contained" 
+                        disabled={!editingProject || editLoading}
+                        sx={{
+                            borderRadius: 2,
+                            px: 3,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)',
+                            '&:hover': {
+                                boxShadow: '0 6px 16px rgba(25, 118, 210, 0.4)',
+                            }
+                        }}
+                    >
+                        {editLoading ? 'Updating...' : 'Update Project'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog 
+                open={deleteConfirmOpen} 
+                onClose={cancelDeleteProject} 
+                maxWidth="sm" 
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)'
+                    }
+                }}
+            >
+                <DialogTitle sx={{ 
+                    pb: 1,
+                    borderBottom: '2px solid #e9ecef',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2
+                }}>
+                    <Avatar sx={{ 
+                        backgroundColor: '#f44336',
+                        width: 40,
+                        height: 40
+                    }}>
+                        <DeleteIcon />
+                    </Avatar>
+                    <Box component="span" sx={{ 
+                        fontWeight: 600, 
+                        color: '#2c3e50',
+                        fontSize: '1.25rem'
+                    }}>
+                        Delete Project
+                    </Box>
+                </DialogTitle>
+                <DialogContent sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: 2, 
+                    mt: 2,
+                    pt: 2
+                }}>
+                    <Typography variant="body1" sx={{ color: '#2c3e50', mb: 1 }}>
+                        Are you sure you want to delete this project?
+                    </Typography>
+                    
+                    {projectToDelete && (
+                        <Card sx={{ 
+                            border: '2px solid #ffebee',
+                            backgroundColor: '#fff5f5',
+                            borderRadius: 2
+                        }}>
+                            <CardContent sx={{ p: 2 }}>
+                                <Typography variant="h6" sx={{ 
+                                    color: '#d32f2f', 
+                                    fontWeight: 600,
+                                    mb: 1
+                                }}>
+                                    {projectToDelete.name}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#666' }}>
+                                    {projectToDelete.description || 'No description'}
+                                </Typography>
+                                <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                    <Chip 
+                                        label={projectToDelete.tag || 'N/A'}
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{ fontSize: '0.7rem' }}
+                                    />
+                                    <Chip 
+                                        label={projectToDelete.status || 'WIP'}
+                                        size="small"
+                                        sx={{ 
+                                            backgroundColor: getProjectStatusColor(projectToDelete.status || 'WIP'),
+                                            color: 'white',
+                                            fontSize: '0.7rem'
+                                        }}
+                                    />
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    )}
+                    
+                    <Typography variant="body2" sx={{ 
+                        color: '#f44336', 
+                        fontWeight: 500,
+                        backgroundColor: '#ffebee',
+                        p: 2,
+                        borderRadius: 1,
+                        border: '1px solid #ffcdd2'
+                    }}>
+                        ⚠️ This action cannot be undone. The project and all its associated data will be permanently deleted.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button 
+                        onClick={cancelDeleteProject}
+                        disabled={deleteLoading}
+                        sx={{
+                            borderRadius: 2,
+                            px: 3,
+                            textTransform: 'none',
+                            fontWeight: 500
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={confirmDeleteProject} 
+                        variant="contained" 
+                        disabled={deleteLoading}
+                        sx={{
+                            borderRadius: 2,
+                            px: 3,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            backgroundColor: '#f44336',
+                            '&:hover': {
+                                backgroundColor: '#d32f2f',
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#ccc'
+                            }
+                        }}
+                    >
+                        {deleteLoading ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <CircularProgress size={16} color="inherit" />
+                                Deleting...
+                            </Box>
+                        ) : (
+                            'Delete Project'
+                        )}
                     </Button>
                 </DialogActions>
             </Dialog>

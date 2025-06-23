@@ -19,11 +19,9 @@ export const AuthProvider = ({ children }) => {
     //     sessionStorage.setItem('user', JSON.stringify(payload));
     //     setUser(payload);
     // };
-    
+
     const loginWithToken = (idToken) => {
-        console.log('Raw ID Token:', idToken); // <--- Add this
         const payload = JSON.parse(atob(idToken.split('.')[1]));
-        console.log('Parsed ID Token Payload:', payload); // <--- Add this
         sessionStorage.setItem('user', JSON.stringify(payload));
         setUser(payload);
     };
@@ -32,8 +30,6 @@ export const AuthProvider = ({ children }) => {
         sessionStorage.removeItem('user');
         setUser(null);
     };
-
-
 
     // ✅ Load additional user profile from your backend
     useEffect(() => {
