@@ -36,22 +36,26 @@ let fullName = '';
 if (userName) {
     fullName = userName.name + ' ' + userName.family_name;
 }
+const organization = userName['custom:organization'];
 
 
 function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
     const [formData, setFormData] = useState({
-        title: '',
+        taskName: '',
         description: '',
         priority: 'Medium',
         status: 'todo',
-        project: '',
+        dueDate: '',
+        projectId: '',
+        orgName: organization,
         parentTask: '',
-        createdBy: fullName,
+        createdBy: userName.sub,      // should be userId (not full name)
         assignedTo: '',
+        creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()   // should be userId
     });
+    
 
     const { projects } = useProject();
-    console.log(projects);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -74,17 +78,22 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
             'Done': 'done',
         };
     
+        // THIS IS THE PAYLOAD SENT TO LAMBDA - KEEP IT AS IS
         const payload = {
             ...formData,
             status: statusMap[formData.status] || formData.status,
+            creationDate: formData.creationDate ? new Date(formData.creationDate).toISOString() : new Date().toISOString(),
+            dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null, // Set to null if empty
+            taskId: task?.taskId || undefined, // Send taskId if it's an existing task being updated
         };
     
-
-        console.log(payload);
+        console.log("Sending payload to backend:", JSON.stringify(payload));
         const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
+        console.log("API URL:", apiUrl);
+    
         try {
             const response = await fetch(apiUrl, {
-                method: 'POST',
+                method: 'POST', // Or 'PUT' if you differentiate between create/update
                 headers: {
                     'Content-Type': 'application/json',
                     // Add auth headers if needed
@@ -92,21 +101,42 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                 body: JSON.stringify(payload),
             });
     
+            console.log("Raw Response Object from Lambda:", response);
+            console.log("Response status:", response.status);
+            console.log("Response OK:", response.ok);
+    
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorBody = await response.text();
+                console.error("HTTP error response body:", errorBody);
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
             }
     
-            const result = await response.json();
-            console.log('Task created:', result);
+            const contentType = response.headers.get('content-type');
+            let backendResponseData = {};
+            if (contentType && contentType.includes('application/json')) {
+                backendResponseData = await response.json(); // This will be {message, taskId, topicArn}
+                console.log('Lambda Response Data (parsed JSON):', backendResponseData);
+            } else {
+                const rawText = await response.text();
+                console.warn('Response content-type is not JSON. Raw response:', rawText);
+            }
+
+            const taskObjectForContext = {
+                ...payload, // Use the 'payload' that was *sent*, as it contains all original form data and correct status.
+                           // This ensures consistency with what you wanted to save.
+                taskId: backendResponseData.taskId, // Override or add the taskId from the backend
+                id: backendResponseData.taskId, // Use backend taskId as the primary ID for React lists
+            };
     
-            onSave(result); // Optional: if onSave expects API response
-            onClose();      // Optionally close the modal
+            console.log("Task object passed to onSave (for context update):", taskObjectForContext);
+            onSave(taskObjectForContext); // Pass this rich object to the context's handleSaveTask
+            onClose();
     
         } catch (error) {
-            console.error('Failed to create task:', error);
-            // Optionally show an error message to the user
+            console.error('Failed to create/update task (catch block):', error);
+            // Optionally show an error message to the user (e.g., using a state for snackbar)
         }
-    };
+    };    
     
 
     const getPriorityColor = (priority) => {
@@ -207,8 +237,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                     Task Title *
                                 </Typography>
                                 <TextField
-                                    name="title"
-                                    value={formData.title}
+                                    name="taskName"
+                                    value={formData.taskName}
                                     onChange={handleChange}
                                     required
                                     fullWidth
@@ -300,8 +330,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                     /> */}
                                     <FormControl fullWidth required>
                                         <Select
-                                            name="project"
-                                            value={formData.project || ''}
+                                            name="projectId"
+                                            value={formData.projectId || ''}
                                             onChange={handleChange}
                                             required
                                             sx={{
@@ -488,7 +518,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                             }}
                                         >
                                             {users.map((user) => (
-                                                <MenuItem key={user.id} value={user.name + ' ' + user.family_name}>
+                                                <MenuItem key={user.userId} value={user.userId}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Avatar sx={{ width: 20, height: 20, fontSize: '0.75rem' }}>
                                                             {user.name?.[0]}{user.family_name?.[0]}
@@ -556,7 +586,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={!formData.title || !formData.createdBy || !formData.assignedTo || !formData.project}
+                        disabled={!formData.taskName || !formData.createdBy || !formData.assignedTo || !formData.projectId}
                         sx={{
                             borderRadius: 2,
                             px: 3,

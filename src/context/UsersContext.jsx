@@ -28,7 +28,6 @@ export const UsersProvider = ({ children }) => {
 
   useEffect(() => {
     // Add console log here to confirm orgName is received
-    console.log('UsersContext useEffect - orgName:', orgName);
     if (orgName) fetchUsersFromAPI();
   }, [orgName]); // Dependency is orgName from AuthContext
 

@@ -13,8 +13,7 @@ export const ProjectProvider = ({ children }) => {
 
     // ✅ Dynamically derive managers from users
     const managers = users.filter(u => u.role === 'Manager').map(u => u.name);
-    console.log('users', users);
-    console.log('managers', managers);
+
     const [addOpen, setAddOpen] = useState(false);
     const [newProject, setNewProject] = useState({
         name: '',
