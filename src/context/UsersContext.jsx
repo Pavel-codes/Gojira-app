@@ -27,9 +27,15 @@ export const UsersProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Add console log here to confirm orgName is received
-    if (orgName) fetchUsersFromAPI();
-  }, [orgName]); // Dependency is orgName from AuthContext
+    // Skip API call if orgName is DefaultOrg or user name is Admin
+    if (orgName && orgName !== "DefaultOrg" && loggedInUser?.name !== "Admin") {
+      fetchUsersFromAPI();
+    } else {
+      console.log('Skipping users API call - orgName is DefaultOrg or user is Admin');
+      setUsers([]);
+      setLoadingUsers(false);
+    }
+  }, [orgName, loggedInUser?.name]); // Add loggedInUser.name as dependency
 
   return (
     <UsersContext.Provider value={{ users, loadingUsers, usersError, orgName }}>

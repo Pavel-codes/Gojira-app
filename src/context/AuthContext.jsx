@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     // ✅ Load additional user profile from your backend
     useEffect(() => {
         const fetchUserProfile = async () => {
-            if (!user || user.profile || !user.sub) return;
+            if (!user || user.profile || !user.sub || user.name === 'Admin') return;
 
             try {
                 const res = await fetch(`${config.apiBaseUrl}${config.endpoints.usersUser}?userId=${user.sub}`);
