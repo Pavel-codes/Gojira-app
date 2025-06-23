@@ -29,7 +29,6 @@ function AdminDashboard() {
     const [organizations, setOrganizations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-
     // State for Organization Dialog
     const [orgDialogOpen, setOrgDialogOpen] = useState(false);
     const [isEditingOrg, setIsEditingOrg] = useState(false);
@@ -47,6 +46,11 @@ function AdminDashboard() {
         username: '',
         temporaryPassword: ''
     });
+
+    // State for Delete Confirmation Dialog
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [orgToDelete, setOrgToDelete] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     const fetchOrganizationsFromAPI = async () => {
         try {
@@ -88,18 +92,23 @@ function AdminDashboard() {
         setEditingOrgId(null);
     };
 
-    const handleCreateOrg = async () => {
+    const handleCreateOrg = async (org) => {
         setError(null);
         if (isEditingOrg) {
-            // Placeholder for PUT request for editing organization
-            // In a real app, you would send a PUT request to update the organization
+
+            const editedPayload = {
+                orgId: editingOrgId,
+                orgName: newOrg.name,
+                status: "Active"
+              }
+
             try {
-                const response = await fetch(`${organizationsApiUrl}/${editingOrgId}`, {
+                const response = await fetch(`${organizationsApiUrl}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ orgName: newOrg.name }) // Adjust payload as per your API
+                    body: JSON.stringify(editedPayload) // Adjust payload as per your API
                 });
 
                 if (!response.ok) {
@@ -134,23 +143,26 @@ function AdminDashboard() {
     };
 
     const handleDeleteOrg = async (orgId) => {
-        if (window.confirm('Are you sure you want to delete this organization? This action cannot be undone.')) {
-            try {
-                const response = await fetch(`${organizationsApiUrl}/${orgId}`, {
-                    method: 'DELETE',
-                });
+        try {
+            setDeleteLoading(true);
+            const response = await fetch(`${organizationsApiUrl}?orgId=${orgId}`, {
+                method: 'DELETE',
+            });
     
-                if (!response.ok) {
-                    throw new Error(`Failed to delete organization. Status: ${response.status}`);
-                }
-                await fetchOrganizationsFromAPI(); // Re-fetch organizations after deletion
-            } catch (err) {
-                console.error('Error deleting organization:', err);
-                setError('Failed to delete organization');
+            if (!response.ok) {
+                throw new Error(`Failed to delete organization. Status: ${response.status}`);
             }
+            await fetchOrganizationsFromAPI();
+            setDeleteDialogOpen(false); // Close dialog
+            setOrgToDelete(null); // Clear the ID
+        } catch (err) {
+            console.error('Error deleting organization:', err);
+            setError('Failed to delete organization');
+        } finally {
+            setDeleteLoading(false);
         }
     };
-
+    
     // Handlers for User Dialog
     const handleUserDialogOpen = () => {
         setNewUser({
@@ -512,7 +524,11 @@ function AdminDashboard() {
                                                         </IconButton>
                                                         <IconButton 
                                                             size="small" 
-                                                            onClick={() => handleDeleteOrg(org.id)}
+                                                            onClick={() => {
+                                                                console.log("Clicked delete for org:", org);
+                                                                setOrgToDelete(org);
+                                                                setDeleteDialogOpen(true);
+                                                            }}
                                                             sx={{
                                                                 color: '#f44336',
                                                                 '&:hover': {
@@ -727,6 +743,121 @@ function AdminDashboard() {
                                     }}
                                 >
                                     Create User
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
+                        {/* Delete Confirmation Dialog */}
+                        <Dialog
+                            open={deleteDialogOpen}
+                            onClose={() => {
+                                if (!deleteLoading) {
+                                    setDeleteDialogOpen(false);
+                                    setOrgToDelete(null);
+                                }
+                            }}
+                            PaperProps={{
+                                sx: {
+                                    borderRadius: 3,
+                                    minWidth: 400
+                                }
+                            }}
+                        >
+                            <DialogTitle sx={{ 
+                                fontWeight: 600,
+                                borderBottom: '1px solid #e9ecef',
+                                pb: 2
+                            }}>
+                                Delete Organization
+                            </DialogTitle>
+                            <DialogContent sx={{ pt: 3 }}>
+                                <Typography variant="body1" sx={{ color: '#2c3e50', mb: 1 }}>
+                                    Are you sure you want to delete this organization?
+                                </Typography>
+                                
+                                {orgToDelete && (
+                                    <Card sx={{ 
+                                        border: '2px solid #ffebee',
+                                        backgroundColor: '#fff5f5',
+                                        borderRadius: 2,
+                                        mt: 2
+                                    }}>
+                                        <CardContent sx={{ p: 2 }}>
+                                            <Typography variant="h6" sx={{ 
+                                                color: '#d32f2f', 
+                                                fontWeight: 600,
+                                                mb: 1
+                                            }}>
+                                                {orgToDelete.orgName}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
+                                                Users: {orgToDelete.users?.length || 0}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: '#666' }}>
+                                                Created: {orgToDelete.createdAt ? new Date(orgToDelete.createdAt).toLocaleDateString() : 'N/A'}
+                                            </Typography>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                                
+                                <Typography variant="body2" sx={{ 
+                                    color: '#f44336', 
+                                    fontWeight: 500,
+                                    backgroundColor: '#ffebee',
+                                    p: 2,
+                                    borderRadius: 1,
+                                    border: '1px solid #ffcdd2',
+                                    mt: 2
+                                }}>
+                                    ⚠️ This action cannot be undone. The organization and all its associated data will be permanently deleted.
+                                </Typography>
+                            </DialogContent>
+                            <DialogActions sx={{ p: 3, pt: 1 }}>
+                                <Button 
+                                    onClick={() => {
+                                        setDeleteDialogOpen(false);
+                                        setOrgToDelete(null);
+                                    }}
+                                    disabled={deleteLoading}
+                                    sx={{ 
+                                        textTransform: 'none',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button 
+                                      onClick={() => {
+                                        if (orgToDelete && orgToDelete.orgId) {
+                                          handleDeleteOrg(orgToDelete.orgId);
+                                        } else {
+                                          console.error("orgToDelete or orgToDelete.orgId is undefined:", orgToDelete);
+                                        }
+                                      }}
+                                    variant="contained" 
+                                    disabled={deleteLoading}
+                                    sx={{ 
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                        borderRadius: 2,
+                                        px: 3,
+                                        backgroundColor: '#f44336',
+                                        '&:hover': {
+                                            backgroundColor: '#d32f2f',
+                                        },
+                                        '&:disabled': {
+                                            backgroundColor: '#ccc'
+                                        }
+                                    }}
+                                >
+                                    {deleteLoading ? (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <CircularProgress size={16} color="inherit" />
+                                            Deleting...
+                                        </Box>
+                                    ) : (
+                                        'Delete Organization'
+                                    )}
                                 </Button>
                             </DialogActions>
                         </Dialog>
