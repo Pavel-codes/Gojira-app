@@ -26,11 +26,16 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import FlagIcon from '@mui/icons-material/Flag';
 import DescriptionIcon from '@mui/icons-material/Description';
 import BusinessIcon from '@mui/icons-material/Business';
+import { useProject } from '../context/ProjectContext';
+import config from '../config';
 
 const priorities = ['Low', 'Medium', 'High', 'Critical'];
 const statuses = ['To Do', 'In Progress', 'Done'];
 const userName = JSON.parse(sessionStorage.getItem('user'));
-const fullName = userName.name + ' ' + userName.family_name;
+let fullName = '';
+if (userName) {
+    fullName = userName.name + ' ' + userName.family_name;
+}
 
 
 function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
@@ -41,58 +46,68 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
         status: 'todo',
         project: '',
         parentTask: '',
-        createdBy: '',
+        createdBy: fullName,
         assignedTo: '',
     });
 
-    useEffect(() => {
-        if (task) {
-            setFormData({
-                ...task,
-                status: task.status || 'todo',
-                creationDate: task.creationDate || new Date().toISOString(),
-                dueDate: task.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                project: task.project || '',
-                parentTask: task.parentTask || '',
-                createdBy: task.createdBy || '',
-                assignedTo: task.assignedTo || '',
-            });
-        } else {
-            setFormData({
-                title: '',
-                description: '',
-                priority: 'Medium',
-                status: 'todo',
-                creationDate: new Date().toISOString(),
-                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                project: '',
-                parentTask: '',
-                createdBy: '',
-                assignedTo: '',
-            });
-        }
-    }, [task]);
-
+    const { projects } = useProject();
+    console.log(projects);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
+        
     };
+    useEffect(() => {
+        console.log('Form updated:', formData);
+    }, [formData]);
+    
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+    
         const statusMap = {
             'To Do': 'todo',
             'In Progress': 'inProgress',
             'Done': 'done',
         };
-        onSave({
+    
+        const payload = {
             ...formData,
             status: statusMap[formData.status] || formData.status,
-        });
+        };
+    
+
+        console.log(payload);
+        const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add auth headers if needed
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const result = await response.json();
+            console.log('Task created:', result);
+    
+            onSave(result); // Optional: if onSave expects API response
+            onClose();      // Optionally close the modal
+    
+        } catch (error) {
+            console.error('Failed to create task:', error);
+            // Optionally show an error message to the user
+        }
     };
+    
 
     const getPriorityColor = (priority) => {
         switch (priority) {
@@ -263,12 +278,13 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                         <BusinessIcon fontSize="small" />
                                         Project
                                     </Typography>
-                                    <TextField
+                                    {/* <TextField
                                         name="project"
                                         value={formData.project}
                                         onChange={handleChange}
                                         fullWidth
                                         placeholder="Project name..."
+                                        required
                                         sx={{
                                             '& .MuiOutlinedInput-root': {
                                                 borderRadius: 2,
@@ -281,7 +297,27 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                                 }
                                             }
                                         }}
-                                    />
+                                    /> */}
+                                    <FormControl fullWidth required>
+                                        <Select
+                                            name="project"
+                                            value={formData.project || ''}
+                                            onChange={handleChange}
+                                            required
+                                            sx={{
+                                                borderRadius: 2,
+                                                backgroundColor: '#ffffff'
+                                            }}
+                                        >
+                                            {projects.map((project) => (
+                                                <MenuItem key={project.id} value={project.id}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        {project.name}
+                                                    </Box>
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="subtitle2" sx={{
@@ -444,20 +480,20 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                     <FormControl fullWidth required>
                                         <Select
                                             name="assignedTo"
-                                            value={formData.assignedTo}
+                                            value={formData.assignedTo || ''}
                                             onChange={handleChange}
                                             sx={{
                                                 borderRadius: 2,
                                                 backgroundColor: '#ffffff'
                                             }}
                                         >
-                                            {users.map((u) => (
-                                                <MenuItem key={u.id} value={u.id}>
+                                            {users.map((user) => (
+                                                <MenuItem key={user.id} value={user.name + ' ' + user.family_name}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                                                            {u.name && u.family_name?.charAt(0) || 'U'}
+                                                        <Avatar sx={{ width: 20, height: 20, fontSize: '0.75rem' }}>
+                                                            {user.name?.[0]}{user.family_name?.[0]}
                                                         </Avatar>
-                                                        {u.name + ' ' + u.family_name}
+                                                        {user.name} {user.family_name}
                                                     </Box>
                                                 </MenuItem>
                                             ))}
@@ -520,7 +556,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={!formData.title || !formData.createdBy || !formData.assignedTo}
+                        disabled={!formData.title || !formData.createdBy || !formData.assignedTo || !formData.project}
                         sx={{
                             borderRadius: 2,
                             px: 3,

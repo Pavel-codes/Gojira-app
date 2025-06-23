@@ -38,9 +38,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <AuthProvider>
         <UsersProvider>
-          <CreateProvider>
-            <SidebarProvider>
-              <ProjectProvider>
+          <ProjectProvider>
+            <CreateProvider>
+              <SidebarProvider>
                 <Router>
                   <Routes>
                     <Route path="/" element={<Home />} />
@@ -73,9 +73,9 @@ function App() {
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Router>
-              </ProjectProvider>
-            </SidebarProvider>
-          </CreateProvider>
+              </SidebarProvider>
+            </CreateProvider>
+          </ProjectProvider>
         </UsersProvider>
       </AuthProvider>
     </ThemeProvider>
