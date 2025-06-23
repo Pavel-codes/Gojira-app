@@ -25,7 +25,7 @@ import { useUsers } from '../context/UsersContext'; // NEW CONTEXT
 const Navbar = () => {
     const { handleCreateClick } = useCreate();
     const { toggleSidebar } = useSidebar();
-    const { openAddProjectModal } = useProject();
+    const { openAddProjectModal,projects } = useProject();
     const { logout } = useAuth();
     const { users } = useUsers(); // NEW HOOK
     const navigate = useNavigate();
@@ -50,15 +50,11 @@ const Navbar = () => {
         handleProfileMenuClose();
     };
     const handleMenuClick = () => toggleSidebar();
-
-    const starredProjects = [
-        { id: 1, name: 'Attack Stack', key: 'ATCK', starred: true, icon: <FolderIcon sx={{ color: '#4caf50' }} /> },
-    ];
-    const recentProjects = [
-        { id: 2, name: 'Platform', key: 'PLAT', starred: false, icon: <FolderIcon sx={{ color: '#1976d2' }} /> },
-    ];
+console.log('projects', projects);
+ 
 
     return (
+        
         <AppBar position="static" color="default" elevation={0}
             sx={{
                 zIndex: 1201,
@@ -87,10 +83,10 @@ const Navbar = () => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Button color="inherit" sx={navButtonStyle}>Your work<ArrowDown sx={arrowIcon} /></Button>
+                    <Button color="inherit" sx={activeNavButtonStyle}>MY WORK<ArrowDown sx={arrowIcon} /></Button>
                     <Button color="inherit" onClick={handleMenuOpen} sx={activeNavButtonStyle}>PROJECTS<ArrowDown sx={arrowIcon} /></Button>
-                    <Button color="inherit" component={Link} to="/dashboard" sx={navButtonStyle}>DASHBOARD</Button>
-                    <Button color="inherit" onClick={handlePeopleMenuOpen} sx={navButtonStyle}>PEOPLE<ArrowDown sx={arrowIcon} /></Button>
+                    <Button color="inherit" component={Link} to="/dashboard" sx={activeNavButtonStyle}>DASHBOARD</Button>
+                    <Button color="inherit" onClick={handlePeopleMenuOpen} sx={activeNavButtonStyle}>PEOPLE<ArrowDown sx={arrowIcon} /></Button>
                 </Box>
 
                 <Button variant="contained" color="primary" onClick={handleCreateClick}
@@ -127,26 +123,16 @@ const Navbar = () => {
 
                 {/* Projects Menu */}
                 <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose} PaperProps={menuProps}>
-                    <ListSubheader sx={menuHeaderStyle}>Starred</ListSubheader>
-                    {starredProjects.map(project => (
-                        <MenuItem key={project.id} onClick={handleMenuClose} sx={menuItemStyle}>
-                            <ListItemIcon>{project.icon}</ListItemIcon>
-                            <ListItemText primary={`${project.name} (${project.key})`} secondary="Software project" primaryTypographyProps={{ fontWeight: 500 }} />
-                            <StarIcon sx={{ color: '#fbc02d', ml: 1 }} fontSize="small" />
+                    <ListSubheader sx={menuHeaderStyle}>{projects[0] ? projects[0].orgName:'No projects'} Projects</ListSubheader>
+                    {projects.map(project => (
+                        <MenuItem key={project.id} sx={menuItemStyle}>
+                            <ListItemIcon><FolderIcon sx={{ color: '#1976d2' }} /></ListItemIcon>
+                            <ListItemText primary={`${project.name} (${project.tag})`} secondary="Software project" primaryTypographyProps={{ fontWeight: 500 }} />
+                          
                         </MenuItem>
                     ))}
-                    <Divider />
-                    <ListSubheader sx={menuHeaderStyle}>Recent</ListSubheader>
-                    {recentProjects.map(project => (
-                        <MenuItem key={project.id} onClick={handleMenuClose} sx={menuItemStyle}>
-                            <ListItemIcon>{project.icon}</ListItemIcon>
-                            <ListItemText primary={`${project.name} (${project.key})`} secondary="Software project" primaryTypographyProps={{ fontWeight: 500 }} />
-                            <StarBorderIcon sx={{ color: '#bdbdbd', ml: 1 }} fontSize="small" />
-                        </MenuItem>
-                    ))}
-                    <Divider />
+                    <Divider />    
                     <MenuItem onClick={handleMenuClose} component={Link} to="/projects" sx={menuItemStyle}><ListItemText primary="View all projects" /></MenuItem>
-                    <MenuItem onClick={() => { handleMenuClose(); openAddProjectModal(); }} sx={menuItemStyle}><ListItemIcon><AddIcon /></ListItemIcon><ListItemText primary="Create project" /></MenuItem>
                 </Menu>
 
                 {/* People Menu */}
@@ -154,7 +140,7 @@ const Navbar = () => {
                     <ListSubheader sx={menuHeaderStyle}>My Team</ListSubheader>
                     <Divider />
                     {users.map((person) => (
-                        <MenuItem key={person.id} onClick={handlePeopleMenuClose} sx={menuItemStyle}>
+                        <MenuItem key={person.id} sx={menuItemStyle}>
                             <ListItemIcon>
                                 <Avatar sx={{ width: 32, height: 32, fontSize: '0.875rem' }}>
                                     {person.name?.charAt(0) || 'U'}

@@ -5,19 +5,21 @@ import config from '../config';
 const apiUrl = config.apiBaseUrl + config.endpoints.projects;
 const ProjectContext = createContext(null);
 
-const managers = ['user001', 'user002', 'user004']; // adjust to match actual users if needed
-
 export const ProjectProvider = ({ children }) => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { orgName } = useUsers();
+    const { orgName, users = [] } = useUsers(); // ✅ grab orgName and users
 
+    // ✅ Dynamically derive managers from users
+    const managers = users.filter(u => u.role === 'Manager').map(u => u.name);
+    console.log('users', users);
+    console.log('managers', managers);
     const [addOpen, setAddOpen] = useState(false);
     const [newProject, setNewProject] = useState({
         name: '',
         tag: '',
-        manager: managers[0],
+        manager: managers[0] || '',
         description: ''
     });
 
@@ -26,19 +28,17 @@ export const ProjectProvider = ({ children }) => {
             console.warn('Organization name not available, skipping project fetch');
             return;
         }
-        console.log('ProjectContext orgName:', orgName);
+
         setLoading(true);
         setError(null);
-    
+
         const queryUrl = `${apiUrl}?orgName=${encodeURIComponent(orgName)}`;
-    
+
         try {
             const response = await fetch(queryUrl);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    
+
             const data = await response.json();
-    
-            // ✅ Your data IS the array
             if (Array.isArray(data)) {
                 const transformed = data.map(project => ({
                     id: project.projectId,
@@ -46,11 +46,10 @@ export const ProjectProvider = ({ children }) => {
                     tag: project.projectTag,
                     manager: project.projectManager,
                     description: project.description,
-                    orgId: project.orgId,
+                    orgName: project.orgName,
                 }));
                 setProjects(transformed);
             } else {
-                console.warn('❌ API response is not an array:', data);
                 setError('No project data found in API response.');
             }
         } catch (error) {
@@ -60,8 +59,6 @@ export const ProjectProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    
-    
 
     useEffect(() => {
         if (orgName) fetchProjectsFromAPI();
@@ -76,14 +73,15 @@ export const ProjectProvider = ({ children }) => {
     };
 
     const handleAddProject = async () => {
+        console.log('managers', managers);
         const newEntry = {
             projectName: newProject.name,
             projectTag: newProject.tag || newProject.name.slice(0, 4).toUpperCase(),
             projectManager: newProject.manager,
             description: newProject.description,
-            orgId: 'org001', // Replace with dynamic org ID if available
+            orgName: orgName, // ✅ this is what your Lambda expects
         };
-    
+
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -92,19 +90,17 @@ export const ProjectProvider = ({ children }) => {
                 },
                 body: JSON.stringify(newEntry),
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Failed to add project. Status: ${response.status}`);
             }
-    
+
             const result = await response.json();
             console.log('Successfully added project:', result);
-    
-            // Optionally refresh full list from server
+
             await fetchProjectsFromAPI();
-    
-            // Reset form and close modal
-            setNewProject({ name: '', tag: '', manager: managers[0], description: '' });
+
+            setNewProject({ name: '', tag: '', manager: managers[0] || '', description: '' });
             setAddOpen(false);
         } catch (error) {
             console.error('Error adding project:', error);
