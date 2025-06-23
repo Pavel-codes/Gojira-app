@@ -73,7 +73,6 @@ export const ProjectProvider = ({ children }) => {
     };
 
     const handleAddProject = async () => {
-        console.log('managers', managers);
         const newEntry = {
             projectName: newProject.name,
             projectTag: newProject.tag || newProject.name.slice(0, 4).toUpperCase(),

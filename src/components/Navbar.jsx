@@ -50,9 +50,7 @@ const Navbar = () => {
         handleProfileMenuClose();
     };
     const handleMenuClick = () => toggleSidebar();
-console.log('projects', projects);
  
-
     return (
         
         <AppBar position="static" color="default" elevation={0}
