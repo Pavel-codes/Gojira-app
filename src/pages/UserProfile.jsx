@@ -23,12 +23,12 @@ function UserSettings() {
     const [settings, setSettings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const usersApiUrl = config.apiBaseUrl + config.endpoints.usersUser;
 
     useEffect(() => {
         const fetchUserData = async () => {
             const loggedUser = JSON.parse(sessionStorage.getItem('user'));
             const userId = loggedUser.sub; // Assuming it's already stored on login
-            const usersApiUrl = config.apiBaseUrl + config.endpoints.usersUser;
             // console.log('Debug - userId:', userId);
 
             if (!userId) {
@@ -69,7 +69,7 @@ function UserSettings() {
         });
     };
 
-    const handleSave = () => {
+    const handleSave = ()  => {
         // TODO: Implement update logic (e.g. PUT to /Users/user)
         console.log('Saving settings:', settings);
     };
@@ -80,7 +80,7 @@ function UserSettings() {
             WebkitTextFillColor: '#666666',
         }
     };
-
+    console.log('settings', settings);
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
@@ -95,7 +95,7 @@ function UserSettings() {
                 }}>
                     <Container maxWidth="lg" sx={{ mt: 2, mb: 4 }}>
                         <Typography variant="h4" gutterBottom>
-                            User Settings
+                            User Profile
                         </Typography>
 
                         {loading && <CircularProgress />}
@@ -124,7 +124,7 @@ function UserSettings() {
                                                 <PhotoCamera />
                                             </IconButton>
                                         </Box>
-                                        <Typography variant="h6">{`${settings.name} ${settings.family_name}`}</Typography>
+                                        <Typography variant="h6">{`${settings.username}`}</Typography>
                                         <Typography color="textSecondary">{settings.role}</Typography>
                                     </Paper>
                                 </Grid>
@@ -139,16 +139,16 @@ function UserSettings() {
                                                 <TextField
                                                     fullWidth
                                                     label="First Name"
-                                                    value={settings.firstName || ''}
-                                                    onChange={handleInputChange('firstName')}
+                                                    value={settings.name || ''}
+                                                    onChange={handleInputChange('name')}
                                                 />
                                             </Grid>
                                             <Grid item xs={12} sm={6}>
                                                 <TextField
                                                     fullWidth
                                                     label="Last Name"
-                                                    value={settings.lastName || ''}
-                                                    onChange={handleInputChange('lastName')}
+                                                    value={settings.family_name || ''}
+                                                    onChange={handleInputChange('family_name')}
                                                 />
                                             </Grid>
                                             <Grid item xs={12} sm={6}>
