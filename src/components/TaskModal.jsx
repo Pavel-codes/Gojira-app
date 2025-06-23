@@ -33,10 +33,11 @@ const priorities = ['Low', 'Medium', 'High', 'Critical'];
 const statuses = ['To Do', 'In Progress', 'Done'];
 const userName = JSON.parse(sessionStorage.getItem('user'));
 let fullName = '';
-if (userName) {
+let organization = '';
+if (userName && userName.username !== 'admin') {
     fullName = userName.name + ' ' + userName.family_name;
+    organization = userName['custom:organization'];
 }
-const organization = userName['custom:organization'];
 
 
 function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
@@ -49,7 +50,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
         projectId: '',
         orgName: organization,
         parentTask: '',
-        createdBy: userName.sub,      // should be userId (not full name)
+        createdBy: userName?.sub || 'admin',      // should be userId (not full name)
         assignedTo: '',
         creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()   // should be userId
     });
