@@ -29,6 +29,9 @@ import BusinessIcon from '@mui/icons-material/Business';
 
 const priorities = ['Low', 'Medium', 'High', 'Critical'];
 const statuses = ['To Do', 'In Progress', 'Done'];
+const userName = JSON.parse(sessionStorage.getItem('user'));
+const fullName = userName.name + ' ' + userName.family_name;
+
 
 function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
     const [formData, setFormData] = useState({
@@ -111,10 +114,10 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
     };
 
     return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            maxWidth="md" 
+        <Dialog
+            open={open}
+            onClose={onClose}
+            maxWidth="md"
             fullWidth
             PaperProps={{
                 sx: {
@@ -125,7 +128,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
             }}
         >
             {/* Header */}
-            <DialogTitle sx={{ 
+            <DialogTitle sx={{
                 pb: 1,
                 borderBottom: '2px solid #e9ecef',
                 display: 'flex',
@@ -134,7 +137,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                 backgroundColor: '#f8f9fa'
             }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ 
+                    <Avatar sx={{
                         backgroundColor: task ? '#ff9800' : '#1976d2',
                         width: 40,
                         height: 40
@@ -142,8 +145,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                         <AssignmentIcon />
                     </Avatar>
                     <Box>
-                        <Typography variant="h6" sx={{ 
-                            fontWeight: 600, 
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
                             color: '#2c3e50',
                             mb: 0.5
                         }}>
@@ -177,8 +180,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                         <Grid item xs={12} md={8}>
                             {/* Task Title */}
                             <Box sx={{ mb: 3 }}>
-                                <Typography variant="subtitle2" sx={{ 
-                                    fontWeight: 600, 
+                                <Typography variant="subtitle2" sx={{
+                                    fontWeight: 600,
                                     color: '#2c3e50',
                                     mb: 1,
                                     display: 'flex',
@@ -212,8 +215,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                             {/* Description */}
                             <Box sx={{ mb: 3 }}>
-                                <Typography variant="subtitle2" sx={{ 
-                                    fontWeight: 600, 
+                                <Typography variant="subtitle2" sx={{
+                                    fontWeight: 600,
                                     color: '#2c3e50',
                                     mb: 1,
                                     display: 'flex',
@@ -249,8 +252,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                             {/* Project and Parent Task */}
                             <Grid container spacing={2} sx={{ mb: 3 }}>
                                 <Grid item xs={12} sm={6}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1,
                                         display: 'flex',
@@ -281,8 +284,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                     />
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1
                                     }}>
@@ -317,14 +320,14 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                         {/* Right Column */}
                         <Grid item xs={12} md={4}>
-                            <Box sx={{ 
+                            <Box sx={{
                                 backgroundColor: '#f8f9fa',
                                 borderRadius: 2,
                                 p: 3,
                                 height: 'fit-content'
                             }}>
-                                <Typography variant="h6" sx={{ 
-                                    fontWeight: 600, 
+                                <Typography variant="h6" sx={{
+                                    fontWeight: 600,
                                     color: '#2c3e50',
                                     mb: 3
                                 }}>
@@ -333,8 +336,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                                 {/* Priority */}
                                 <Box sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1,
                                         display: 'flex',
@@ -357,11 +360,11 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                             {priorities.map((priority) => (
                                                 <MenuItem key={priority} value={priority}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Box sx={{ 
-                                                            width: 8, 
-                                                            height: 8, 
-                                                            borderRadius: '50%', 
-                                                            backgroundColor: getPriorityColor(priority) 
+                                                        <Box sx={{
+                                                            width: 8,
+                                                            height: 8,
+                                                            borderRadius: '50%',
+                                                            backgroundColor: getPriorityColor(priority)
                                                         }} />
                                                         {priority}
                                                     </Box>
@@ -373,8 +376,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                                 {/* Status */}
                                 <Box sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1
                                     }}>
@@ -393,11 +396,11 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                             {statuses.map((status) => (
                                                 <MenuItem key={status} value={status}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Box sx={{ 
-                                                            width: 8, 
-                                                            height: 8, 
-                                                            borderRadius: '50%', 
-                                                            backgroundColor: getStatusColor(status.toLowerCase().replace(' ', '')) 
+                                                        <Box sx={{
+                                                            width: 8,
+                                                            height: 8,
+                                                            borderRadius: '50%',
+                                                            backgroundColor: getStatusColor(status.toLowerCase().replace(' ', ''))
                                                         }} />
                                                         {status}
                                                     </Box>
@@ -409,8 +412,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                                 {/* Created By */}
                                 <Box sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1,
                                         display: 'flex',
@@ -421,33 +424,14 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                         Created By *
                                     </Typography>
                                     <FormControl fullWidth required>
-                                        <Select
-                                            name="createdBy"
-                                            value={formData.createdBy}
-                                            onChange={handleChange}
-                                            sx={{
-                                                borderRadius: 2,
-                                                backgroundColor: '#ffffff'
-                                            }}
-                                        >
-                                            {users.map((u) => (
-                                                <MenuItem key={u.id} value={u.id}>
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                                                            {u.name?.charAt(0) || 'U'}
-                                                        </Avatar>
-                                                        {u.name}
-                                                    </Box>
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
+                                        <Typography variant="body2" sx={{ color: '#6c757d' }}>{fullName}</Typography>
                                     </FormControl>
                                 </Box>
 
                                 {/* Assigned To */}
                                 <Box sx={{ mb: 3 }}>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1,
                                         display: 'flex',
@@ -471,9 +455,9 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                                 <MenuItem key={u.id} value={u.id}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
-                                                            {u.name?.charAt(0) || 'U'}
+                                                            {u.name && u.family_name?.charAt(0) || 'U'}
                                                         </Avatar>
-                                                        {u.name}
+                                                        {u.name + ' ' + u.family_name}
                                                     </Box>
                                                 </MenuItem>
                                             ))}
@@ -483,8 +467,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
 
                                 {/* Dates */}
                                 <Box>
-                                    <Typography variant="subtitle2" sx={{ 
-                                        fontWeight: 600, 
+                                    <Typography variant="subtitle2" sx={{
+                                        fontWeight: 600,
                                         color: '#2c3e50',
                                         mb: 1,
                                         display: 'flex',
@@ -515,13 +499,13 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                 </DialogContent>
 
                 {/* Actions */}
-                <DialogActions sx={{ 
-                    p: 3, 
+                <DialogActions sx={{
+                    p: 3,
                     pt: 2,
                     borderTop: '1px solid #e9ecef',
                     backgroundColor: '#f8f9fa'
                 }}>
-                    <Button 
+                    <Button
                         onClick={onClose}
                         sx={{
                             borderRadius: 2,
@@ -533,8 +517,8 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                     >
                         Cancel
                     </Button>
-                    <Button 
-                        type="submit" 
+                    <Button
+                        type="submit"
                         variant="contained"
                         disabled={!formData.title || !formData.createdBy || !formData.assignedTo}
                         sx={{

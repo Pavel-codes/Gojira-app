@@ -1,9 +1,11 @@
 import { createContext, useState, useContext } from 'react';
 import TaskModal from '../components/TaskModal';
+import { useUsers } from '../context/UsersContext';
 
 const CreateContext = createContext(null);
 
 export const CreateProvider = ({ children }) => {
+    const { users=[] } = useUsers();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [tasks, setTasks] = useState({
@@ -50,11 +52,7 @@ export const CreateProvider = ({ children }) => {
                 onClose={() => setIsModalOpen(false)}
                 onSave={handleSaveTask}
                 task={selectedTask}
-                users={[
-                    { id: '1', name: 'Alice' },
-                    { id: '2', name: 'Bob' },
-                    { id: '3', name: 'Charlie' },
-                ]}
+                users={users}
                 tasks={Object.values(tasks).flat()}
             />
         </CreateContext.Provider>

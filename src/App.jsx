@@ -37,46 +37,46 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        <CreateProvider>
-          <SidebarProvider>
-            <UsersProvider>
+        <UsersProvider>
+          <CreateProvider>
+            <SidebarProvider>
               <ProjectProvider>
-              <Router>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  {/* <Route path="/login" element={<Login />} /> */}
-                  <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/dashboard"
-                        element={
-                            <ProtectedRoute onlyUser>
-                                <Dashboard />
-                            </ProtectedRoute>
-                        }
-                  />
-                  <Route path="/backlog" element={<Backlog />} />
-                  <Route path="/task/:id" element={<Task />} />
-                  <Route path="/reports" element={<Reports />} />
-                  <Route path="/team" element={<Team />} />
-                  <Route path="/projects" element={<Projects />} />
-                  <Route path="/profile" element={<UserProfile />} />
-                  <Route path="/settings" element={<UserSettings />} />
-                  <Route path="/admindashboard"
-                        element={
-                            <ProtectedRoute onlyAdmin>
-                                <AdminDashboard />
-                            </ProtectedRoute>
-                        }
-                  />
-                  <Route path="/users/:orgName" element={<Users />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Router>
+                <Router>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    {/* <Route path="/login" element={<Login />} /> */}
+                    <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/dashboard"
+                      element={
+                        <ProtectedRoute onlyUser>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="/backlog" element={<Backlog />} />
+                    <Route path="/task/:id" element={<Task />} />
+                    <Route path="/reports" element={<Reports />} />
+                    <Route path="/team" element={<Team />} />
+                    <Route path="/projects" element={<Projects />} />
+                    <Route path="/profile" element={<UserProfile />} />
+                    <Route path="/settings" element={<UserSettings />} />
+                    <Route path="/admindashboard"
+                      element={
+                        <ProtectedRoute onlyAdmin>
+                          <AdminDashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="/users/:orgName" element={<Users />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Router>
               </ProjectProvider>
-          </UsersProvider>
-          </SidebarProvider>
-        </CreateProvider>
+            </SidebarProvider>
+          </CreateProvider>
+        </UsersProvider>
       </AuthProvider>
     </ThemeProvider>
   );
