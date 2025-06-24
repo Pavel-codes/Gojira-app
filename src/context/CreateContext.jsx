@@ -14,19 +14,25 @@ export const CreateProvider = ({ children }) => {
         done: []
     });
 
-    const handleCreateClick = () => {
-        setSelectedTask(null);
+    const handleCreateClick = (task = null) => {
+        setSelectedTask(task);
         setIsModalOpen(true);
     };
 
     const handleSaveTask = (updatedTask) => {
-        console.log("updatedTask details: ",updatedTask);
         setTasks((prevTasks) => {
-            const newTasks = { ...prevTasks, ...updatedTask };
-    
+            // Remove the task from all status arrays (in case of edit)
+            const newTasks = {
+                todo: prevTasks.todo.filter(t => t.taskId !== updatedTask.taskId),
+                inProgress: prevTasks.inProgress.filter(t => t.taskId !== updatedTask.taskId),
+                done: prevTasks.done.filter(t => t.taskId !== updatedTask.taskId),
+            };
+            // Add the task to the correct status array
+            if (updatedTask.status === 'todo') newTasks.todo.push(updatedTask);
+            else if (updatedTask.status === 'inProgress') newTasks.inProgress.push(updatedTask);
+            else if (updatedTask.status === 'done') newTasks.done.push(updatedTask);
             return newTasks;
         });
-    
         setIsModalOpen(false);
     };
     

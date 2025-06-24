@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';
@@ -15,11 +15,9 @@ import {
     IconButton,
     LinearProgress,
     Chip,
-    Avatar,
     Tooltip
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import TaskModal from '../components/TaskModal';
 import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import dayjs from 'dayjs';
@@ -39,66 +37,36 @@ const initialTasks = { todo: [], inProgress: [], done: [] };
 function Dashboard() {
     const { users } = useUsers();
     const usersTasksApiUrl = config.apiBaseUrl + config.endpoints.tasksUser;
-    const { user, orgName } = useAuth();
+    const { user } = useAuth();
     const { isSidebarOpen } = useSidebar();
     const userId = user.sub;
-    const { tasks, setTasks, handleSaveTask } = useCreate();
-    // const [tasks, setTasks] = useState(initialTasks);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedTask, setSelectedTask] = useState(null);
-    const { logout } = useAuth();
+    const { tasks, setTasks, handleCreateClick } = useCreate();
     const navigate = useNavigate();
 
-
-    const fetchUserTasks = async () => {
-        if (!userId) return;
-        console.log("Fetching user tasks for user:", userId);
-        try {
-            const response = await fetch(`${usersTasksApiUrl}?userId=${userId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            const result = await response.json();
-            console.log("Tasks fetched:", result);
-            const tasksByStatus = { todo: [], inProgress: [], done: [] };
-            result.forEach(task => {
-                const status = task.status?.toLowerCase();
-                if (status === 'todo') tasksByStatus.todo.push(task);
-                else if (status === 'inprogress') tasksByStatus.inProgress.push(task);
-                else if (status === 'done') tasksByStatus.done.push(task);
-            });
-    
-            setTasks(tasksByStatus);
-        } catch (error) {
-            console.error('Error fetching user tasks:', error);
-        }
-    };
-
+    // Fetch tasks for the current user
     useEffect(() => {
+        const fetchUserTasks = async () => {
+            if (!userId) return;
+            try {
+                const response = await fetch(`${usersTasksApiUrl}?userId=${userId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const result = await response.json();
+                const tasksByStatus = { todo: [], inProgress: [], done: [] };
+                result.forEach(task => {
+                    const status = task.status?.toLowerCase();
+                    if (status === 'todo') tasksByStatus.todo.push(task);
+                    else if (status === 'inprogress') tasksByStatus.inProgress.push(task);
+                    else if (status === 'done') tasksByStatus.done.push(task);
+                });
+                setTasks(tasksByStatus);
+            } catch (error) {
+                console.error('Error fetching user tasks:', error);
+            }
+        };
         fetchUserTasks();
-    }, []);
-
-    const handleEditTask = (task) => {
-        setSelectedTask(task);
-        setIsModalOpen(true);
-    };
-
-    // const handleSaveTask = (updatedTask) => {
-    //     console.log(updatedTask);
-    //     setTasks((prevTasks) => {
-    //         const newTasks = { ...prevTasks, ...updatedTask };
-    //         return newTasks;
-    //     });
-    
-    //     setIsModalOpen(false);
-    // };
-
-    useEffect(() => {
-        console.log("tasks: ",tasks);
-    }, [tasks]);
+    }, [userId, setTasks, usersTasksApiUrl]);
 
     const getPriorityColor = (priority) => {
         switch (priority) {
@@ -144,7 +112,7 @@ function Dashboard() {
             display: 'flex', 
             flexDirection: 'column', 
             flex: 1,
-            minWidth: 0 // Prevents flex items from overflowing
+            minWidth: 0
         }}>
             <Paper sx={{ 
                 p: 3, 
@@ -178,24 +146,13 @@ function Dashboard() {
                         {title} ({taskList.length})
                     </Typography>
                 </Box>
-                
                 <Box sx={{ 
                     flex: 1, 
                     overflowY: 'auto',
-                    '&::-webkit-scrollbar': {
-                        width: '6px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                        background: '#f1f1f1',
-                        borderRadius: '3px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                        background: '#c1c1c1',
-                        borderRadius: '3px',
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                        background: '#a8a8a8',
-                    }
+                    '&::-webkit-scrollbar': { width: '6px' },
+                    '&::-webkit-scrollbar-track': { background: '#f1f1f1', borderRadius: '3px' },
+                    '&::-webkit-scrollbar-thumb': { background: '#c1c1c1', borderRadius: '3px' },
+                    '&::-webkit-scrollbar-thumb:hover': { background: '#a8a8a8' }
                 }}>
                     {taskList.map((task) => (
                         <Card key={task.taskId} sx={{ 
@@ -227,7 +184,7 @@ function Dashboard() {
                                     <Tooltip title="Edit Task">
                                         <IconButton 
                                             size="small" 
-                                            onClick={() => handleEditTask(task)}
+                                            onClick={() => handleCreateClick(task)}
                                             sx={{
                                                 color: '#6c757d',
                                                 backgroundColor: '#f8f9fa',
@@ -243,7 +200,6 @@ function Dashboard() {
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
-                                
                                 <Typography variant="body2" color="text.secondary" sx={{ 
                                     mb: 3,
                                     lineHeight: 1.6,
@@ -252,7 +208,6 @@ function Dashboard() {
                                 }}>
                                     {task.description}
                                 </Typography>
-                                
                                 <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
                                     <Chip 
                                         label={task.priority} 
@@ -263,9 +218,7 @@ function Dashboard() {
                                             fontWeight: 600,
                                             fontSize: '0.75rem',
                                             height: 24,
-                                            '& .MuiChip-label': {
-                                                px: 1.5
-                                            }
+                                            '& .MuiChip-label': { px: 1.5 }
                                         }} 
                                     />
                                     <Chip 
@@ -277,13 +230,10 @@ function Dashboard() {
                                             fontWeight: 600,
                                             fontSize: '0.75rem',
                                             height: 24,
-                                            '& .MuiChip-label': {
-                                                px: 1.5
-                                            }
+                                            '& .MuiChip-label': { px: 1.5 }
                                         }} 
                                     />
                                 </Box>
-                                
                                 <Box sx={{ 
                                     display: 'flex', 
                                     gap: 2, 
@@ -315,7 +265,6 @@ function Dashboard() {
                                         ⏰ Due: {dayjs(task.dueDate).format('MMM DD, YYYY')}
                                     </Typography>
                                 </Box>
-                                
                                 <Box sx={{ width: '100%' }}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                         <Typography variant="caption" sx={{ 
@@ -351,7 +300,6 @@ function Dashboard() {
                             </CardContent>
                         </Card>
                     ))}
-                    
                     {taskList.length === 0 && (
                         <Box sx={{ 
                             display: 'flex', 
@@ -389,7 +337,7 @@ function Dashboard() {
                     <Container maxWidth={false} sx={{ 
                         mt: 2, 
                         mb: 4,
-                        px: 0 // Remove default padding to allow full width
+                        px: 0
                     }}>
                         <Box sx={{ 
                             display: 'flex', 
@@ -417,26 +365,16 @@ function Dashboard() {
                                 {allTasks.length} Total Tasks
                             </Typography>
                         </Box>
-                        
                         <Grid container spacing={3} alignItems="flex-start" sx={{ 
                             minHeight: 'calc(100vh - 200px)',
                             '& .MuiGrid-item': {
-                                minWidth: 0 // Prevents grid items from overflowing
+                                minWidth: 0
                             }
                         }}>
                             {renderColumn('To Do', tasks.todo, 'todo')}
                             {renderColumn('In Progress', tasks.inProgress, 'inProgress')}
                             {renderColumn('Done', tasks.done, 'done')}
                         </Grid>
-                        
-                        <TaskModal
-                            open={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            onSave={handleSaveTask}
-                            task={selectedTask}
-                            users={users}
-                            tasks={allTasks}
-                        />
                     </Container>
                 </Box>
             </Box>
