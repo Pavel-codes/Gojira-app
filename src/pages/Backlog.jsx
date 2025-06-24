@@ -8,6 +8,8 @@ import Sidebar from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import { useSidebar } from '../context/SidebarContext';
+import { useProject } from '../context/ProjectContext';
+import { useUsers } from '../context/UsersContext';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import DescriptionIcon from '@mui/icons-material/Description';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -17,27 +19,12 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import config from '../config';
 
 const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
-
-const initialTasksArray = [
-    {
-        id: 1,
-        title: 'Setup AWS Cognito',
-        priority: 'High',
-        description: 'Configure authentication',
-        status: 'todo',
-        creationDate: dayjs().subtract(2, 'day').toISOString(),
-        dueDate: dayjs().add(5, 'day').toISOString(),
-        assignedTo: 'Unassigned',
-        createdBy: 'Unknown',
-        projectId: '123',
-        projectName: 'Auth Setup',
-        orgName: 'TestOrg',
-        orgId: 'org1',
-        comments: []
-    }
-];
+const orgName = JSON.parse(sessionStorage.getItem('user'))['custom:organization'];
+const initialTasksArray = [];
 
 function Backlog() {
+    const { projects } = useProject();
+    const { users } = useUsers();
     const { isSidebarOpen } = useSidebar();
     const [tasks, setTasks] = useState(initialTasksArray);
     const [loading, setLoading] = useState(false);
@@ -47,12 +34,15 @@ function Backlog() {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(apiUrl, {
+            const response = await fetch(`${apiUrl}?orgName=${encodeURIComponent(orgName)} `, {
                 method: 'GET',
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
+            console.log('data', data);
+            console.log('projects', projects);
+            console.log('users', users);
 
             if (data && Array.isArray(data)) {
                 const transformed = data.map(task => ({
@@ -63,9 +53,9 @@ function Backlog() {
                     status: task.status,
                     creationDate: task.creationDate,
                     dueDate: task.dueDate,
-                    assignedTo: task.assignedTo?.fullName || 'Unassigned',
-                    createdBy: task.createdBy?.fullName || 'Unknown',
-                    projectName: task.projectName || 'Unknown Project',
+                    assignedTo: users.find(user => user.userId === task.assignedTo)?.username || 'Unassigned',
+                    createdBy: users.find(user => user.userId === task.createdBy)?.username || 'Unknown',
+                    projectName: projects.find(project => project.id === task.projectId)?.name || 'Unknown Project',
                     comments: task.comments || [],
                     projectId: task.projectId,
                     orgName: task.orgName,
