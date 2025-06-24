@@ -40,8 +40,8 @@ if (userName && userName.username !== 'admin') {
 }
 
 
-function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
-    const [formData, setFormData] = useState({
+function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode = 'create' }) {
+    const initialFormData = {
         taskName: '',
         description: '',
         priority: 'Medium',
@@ -50,33 +50,26 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
         projectId: '',
         orgName: organization,
         parentTask: '',
-        createdBy: userName?.sub || 'admin',      // should be userId (not full name)
+        createdBy: userName?.sub || 'admin',
         assignedTo: '',
-        creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()   // should be userId
-    });
-    
-
-    const { projects } = useProject();
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-        
+        creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     };
-    useEffect(() => {
-        console.log('Form updated:', formData);
-    }, [formData]);
+    const [formData, setFormData] = useState(initialFormData);
+    const { projects } = useProject();
 
     useEffect(() => {
-        if (task) {
+        if (open && mode === 'create') {
+            setFormData(initialFormData);
+        }
+    }, [open, mode]);
+
+    useEffect(() => {
+        if (task && mode === 'edit') {
             const statusMap = {
                 todo: 'To Do',
                 inProgress: 'In Progress',
                 done: 'Done',
             };
-    
             setFormData({
                 taskName: task.taskName || '',
                 description: task.description || '',
@@ -91,9 +84,20 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                 creationDate: task.creationDate || new Date().toISOString()
             });
         }
-    }, [task]);
+    }, [task, mode]);
     
-    
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+        
+    };
+    useEffect(() => {
+        console.log('Form updated:', formData);
+    }, [formData]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

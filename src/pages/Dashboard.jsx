@@ -40,7 +40,7 @@ function Dashboard() {
     const { user } = useAuth();
     const { isSidebarOpen } = useSidebar();
     const userId = user.sub;
-    const { tasks, setTasks, handleCreateClick } = useCreate();
+    const { tasks, setTasks, handleCreateClick, handleEditClick } = useCreate();
     const navigate = useNavigate();
 
     // Fetch tasks for the current user
@@ -184,7 +184,7 @@ function Dashboard() {
                                     <Tooltip title="Edit Task">
                                         <IconButton 
                                             size="small" 
-                                            onClick={() => handleCreateClick(task)}
+                                            onClick={() => handleEditClick(task)}
                                             sx={{
                                                 color: '#6c757d',
                                                 backgroundColor: '#f8f9fa',

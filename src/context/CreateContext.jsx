@@ -8,14 +8,22 @@ export const CreateProvider = ({ children }) => {
     const { users=[] } = useUsers();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
+    const [modalMode, setModalMode] = useState('create'); // 'create' or 'edit'
     const [tasks, setTasks] = useState({
         todo: [],
         inProgress: [],
         done: []
     });
 
-    const handleCreateClick = (task = null) => {
+    const handleCreateClick = () => {
+        setSelectedTask(null);
+        setModalMode('create');
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (task) => {
         setSelectedTask(task);
+        setModalMode('edit');
         setIsModalOpen(true);
     };
 
@@ -34,23 +42,30 @@ export const CreateProvider = ({ children }) => {
             return newTasks;
         });
         setIsModalOpen(false);
+        setSelectedTask(null);
+        setModalMode('create');
     };
-    
 
     return (
         <CreateContext.Provider value={{
             handleCreateClick,
+            handleEditClick,
             tasks,
             setTasks
         }}>
             {children}
             <TaskModal
                 open={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedTask(null);
+                    setModalMode('create');
+                }}
                 onSave={handleSaveTask}
                 task={selectedTask}
                 users={users}
                 tasks={Object.values(tasks).flat()}
+                mode={modalMode}
             />
         </CreateContext.Provider>
     );
