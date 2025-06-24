@@ -68,6 +68,31 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
     useEffect(() => {
         console.log('Form updated:', formData);
     }, [formData]);
+
+    useEffect(() => {
+        if (task) {
+            const statusMap = {
+                todo: 'To Do',
+                inProgress: 'In Progress',
+                done: 'Done',
+            };
+    
+            setFormData({
+                taskName: task.taskName || '',
+                description: task.description || '',
+                priority: task.priority || 'Medium',
+                status: statusMap[task.status] || task.status || 'To Do',
+                dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : '',
+                projectId: task.projectId || '',
+                orgName: task.orgName || organization,
+                parentTask: task.parentTask || '',
+                createdBy: task.createdBy || userName?.sub || 'admin',
+                assignedTo: task.assignedTo || '',
+                creationDate: task.creationDate || new Date().toISOString()
+            });
+        }
+    }, [task]);
+    
     
 
     const handleSubmit = async (e) => {
@@ -307,7 +332,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                         gap: 1
                                     }}>
                                         <BusinessIcon fontSize="small" />
-                                        Project
+                                        Project *
                                     </Typography>
                                     {/* <TextField
                                         name="project"
@@ -543,13 +568,14 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                         gap: 1
                                     }}>
                                         <CalendarTodayIcon fontSize="small" />
-                                        Due Date
+                                        Due Date *
                                     </Typography>
                                     <TextField
                                         name="dueDate"
                                         type="date"
                                         value={formData.dueDate ? formData.dueDate.slice(0, 10) : ''}
                                         onChange={handleChange}
+                                        required
                                         InputLabelProps={{ shrink: true }}
                                         fullWidth
                                         sx={{
@@ -587,7 +613,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={!formData.taskName || !formData.createdBy || !formData.assignedTo || !formData.projectId}
+                        disabled={!formData.taskName || !formData.createdBy || !formData.assignedTo || !formData.projectId || !formData.dueDate}
                         sx={{
                             borderRadius: 2,
                             px: 3,

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';
+import { useUsers } from '../context/UsersContext';
 import {
     Container,
     Grid,
@@ -23,17 +24,19 @@ import Navbar from '../components/Navbar';
 import dayjs from 'dayjs';
 import config from '../config';
 
-// Dummy users list (can be replaced with dynamic org-based members)
-const users = [
-    { id: '1', name: 'Alice' },
-    { id: '2', name: 'Bob' },
-    { id: '3', name: 'Charlie' }
-];
+// // Dummy users list (can be replaced with dynamic org-based members)
+// const users = [
+//     { id: '1', name: 'Alice' },
+//     { id: '2', name: 'Bob' },
+//     { id: '3', name: 'Charlie' }
+// ];
+
 
 // Initial empty task structure
 const initialTasks = { todo: [], inProgress: [], done: [] };
 
 function Dashboard() {
+    const { users } = useUsers();
     const usersTasksApiUrl = config.apiBaseUrl + config.endpoints.tasksUser;
     const { user, orgName } = useAuth();
     const { isSidebarOpen } = useSidebar();
