@@ -48,7 +48,7 @@ function Dashboard() {
 
     const fetchUserTasks = async () => {
         if (!userId) return;
-    
+        console.log("Fetching user tasks for user:", userId);
         try {
             const response = await fetch(`${usersTasksApiUrl}?userId=${userId}`, {
                 method: 'GET',
@@ -58,7 +58,7 @@ function Dashboard() {
             });
 
             const result = await response.json();
-    
+            console.log("Tasks fetched:", result);
             const tasksByStatus = { todo: [], inProgress: [], done: [] };
             result.forEach(task => {
                 const status = task.status?.toLowerCase();
@@ -123,6 +123,15 @@ function Dashboard() {
             case 'inProgress': return 50;
             case 'done': return 100;
             default: return 0;
+        }
+    };
+
+    const getStatusDisplay = (status) => {
+        switch (status) {
+            case 'todo': return 'To do';
+            case 'inProgress': return 'In progress';
+            case 'done': return 'Done';
+            default: return status;
         }
     };
 
@@ -198,21 +207,27 @@ function Dashboard() {
                     {taskList.map((task) => (
                         <Card key={task.taskId} sx={{ 
                             mb: 2,
-                            borderRadius: 2,
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-                            transition: 'all 0.2s ease-in-out',
+                            mt: 1,
+                            borderRadius: 3,
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                            border: '1px solid #e0e0e0',
+                            transition: 'all 0.3s ease-in-out',
+                            backgroundColor: '#ffffff',
                             '&:hover': {
-                                transform: 'translateY(-2px)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                transform: 'translateY(-4px)',
+                                boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+                                borderColor: getStatusColor(status),
                             }
                         }}>
-                            <CardContent sx={{ p: 2.5 }}>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                            <CardContent sx={{ p: 3 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                                     <Typography variant="h6" sx={{ 
-                                        fontWeight: 600,
+                                        fontWeight: 700,
                                         color: '#2c3e50',
-                                        fontSize: '1rem',
-                                        lineHeight: 1.3
+                                        fontSize: '1.1rem',
+                                        lineHeight: 1.4,
+                                        flex: 1,
+                                        mr: 1
                                     }}>
                                         {task.taskName}
                                     </Typography>
@@ -222,10 +237,13 @@ function Dashboard() {
                                             onClick={() => handleEditTask(task)}
                                             sx={{
                                                 color: '#6c757d',
+                                                backgroundColor: '#f8f9fa',
                                                 '&:hover': {
                                                     backgroundColor: '#e3f2fd',
-                                                    color: '#1976d2'
-                                                }
+                                                    color: '#1976d2',
+                                                    transform: 'scale(1.1)'
+                                                },
+                                                transition: 'all 0.2s ease'
                                             }}
                                         >
                                             <EditIcon fontSize="small" />
@@ -234,62 +252,91 @@ function Dashboard() {
                                 </Box>
                                 
                                 <Typography variant="body2" color="text.secondary" sx={{ 
-                                    mb: 2,
-                                    lineHeight: 1.5,
-                                    color: '#6c757d'
+                                    mb: 3,
+                                    lineHeight: 1.6,
+                                    color: '#5a6c7d',
+                                    fontSize: '0.9rem'
                                 }}>
                                     {task.description}
                                 </Typography>
                                 
-                                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                                <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
                                     <Chip 
                                         label={task.priority} 
                                         size="small"
                                         sx={{ 
                                             backgroundColor: getPriorityColor(task.priority), 
                                             color: 'white',
-                                            fontWeight: 500,
-                                            fontSize: '0.75rem'
+                                            fontWeight: 600,
+                                            fontSize: '0.75rem',
+                                            height: 24,
+                                            '& .MuiChip-label': {
+                                                px: 1.5
+                                            }
                                         }} 
                                     />
                                     <Chip 
-                                        label={task.status} 
+                                        label={getStatusDisplay(task.status)} 
                                         size="small"
                                         sx={{ 
                                             backgroundColor: getStatusColor(task.status), 
                                             color: 'white',
-                                            fontWeight: 500,
+                                            fontWeight: 600,
                                             fontSize: '0.75rem',
-                                            textTransform: 'capitalize'
+                                            height: 24,
+                                            '& .MuiChip-label': {
+                                                px: 1.5
+                                            }
                                         }} 
                                     />
                                 </Box>
                                 
-                                <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                                <Box sx={{ 
+                                    display: 'flex', 
+                                    gap: 2, 
+                                    mb: 3, 
+                                    flexWrap: 'wrap',
+                                    p: 1.5,
+                                    backgroundColor: '#f8f9fa',
+                                    borderRadius: 2,
+                                    border: '1px solid #e9ecef'
+                                }}>
                                     <Typography variant="caption" sx={{ 
-                                        color: '#6c757d',
+                                        color: '#495057',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 0.5
+                                        gap: 0.5,
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem'
                                     }}>
-                                        📅 {dayjs(task.creationDate).format('MMM DD')}
+                                        📅 Created: {dayjs(task.creationDate).format('MMM DD, YYYY')}
                                     </Typography>
                                     <Typography variant="caption" sx={{ 
-                                        color: '#6c757d',
+                                        color: '#495057',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: 0.5
+                                        gap: 0.5,
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem'
                                     }}>
-                                        ⏰ {dayjs(task.dueDate).format('MMM DD')}
+                                        ⏰ Due: {dayjs(task.dueDate).format('MMM DD, YYYY')}
                                     </Typography>
                                 </Box>
                                 
                                 <Box sx={{ width: '100%' }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                                        <Typography variant="caption" color="text.secondary">
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="caption" sx={{ 
+                                            color: '#6c757d',
+                                            fontWeight: 600,
+                                            fontSize: '0.75rem'
+                                        }}>
                                             Progress
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary">
+                                        <Typography variant="caption" sx={{ 
+                                            color: '#6c757d',
+                                            fontWeight: 600,
+                                            fontSize: '0.75rem'
+                                        }}>
                                             {getProgress(task.status)}%
                                         </Typography>
                                     </Box>
@@ -297,12 +344,13 @@ function Dashboard() {
                                         variant="determinate" 
                                         value={getProgress(task.status)} 
                                         sx={{ 
-                                            height: 6, 
-                                            borderRadius: 3,
-                                            backgroundColor: '#e0e0e0',
+                                            height: 8, 
+                                            borderRadius: 4,
+                                            backgroundColor: '#e9ecef',
                                             '& .MuiLinearProgress-bar': {
-                                                borderRadius: 3,
-                                                background: `linear-gradient(90deg, ${getStatusColor(task.status)} 0%, ${getStatusColor(task.status)}80 100%)`
+                                                borderRadius: 4,
+                                                background: `linear-gradient(90deg, ${getStatusColor(task.status)} 0%, ${getStatusColor(task.status)}80 100%)`,
+                                                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                                             }
                                         }} 
                                     />
