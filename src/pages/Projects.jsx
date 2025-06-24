@@ -33,7 +33,8 @@ const Projects = () => {
         handleInputChange,
         handleAddProject,
         loading,
-        error
+        error,
+        fetchProjectsFromAPI
     } = useProject();
 
     // Edit project state
@@ -139,7 +140,7 @@ const Projects = () => {
 
             // You might want to refresh the projects list here
             // or update the local state with the new data
-            window.location.reload(); // Simple refresh for now
+            fetchProjectsFromAPI();
 
         } catch (error) {
             console.error('Error updating project:', error);
@@ -217,11 +218,8 @@ const Projects = () => {
             setDeleteConfirmOpen(false);
             setProjectToDelete(null);
 
-            // Show success message
-            alert(`Project "${projectToDelete.name}" has been deleted successfully!`);
-
             // Refresh the page to update the projects list
-            window.location.reload();
+            fetchProjectsFromAPI();
 
         } catch (error) {
             console.error('Error deleting project:', error);

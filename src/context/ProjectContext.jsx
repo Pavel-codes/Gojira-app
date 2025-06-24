@@ -117,7 +117,8 @@ export const ProjectProvider = ({ children }) => {
             handleInputChange,
             handleAddProject,
             loading,
-            error
+            error,
+            fetchProjectsFromAPI
         }}>
             {children}
         </ProjectContext.Provider>

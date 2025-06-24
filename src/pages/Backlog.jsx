@@ -105,6 +105,15 @@ function Backlog() {
         }
     };
 
+    const getStatusDisplay = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'todo': return 'To do';
+            case 'inprogress': return 'In progress';
+            case 'done': return 'Done';
+            default: return status;
+        }
+    };
+
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
@@ -167,7 +176,7 @@ function Backlog() {
                                                 <Chip label={task.priority} color={getPriorityColor(task.priority)} size="small" />
                                             </TableCell>
                                             <TableCell>
-                                                <Chip label={task.status} color={getStatusColor(task.status)} size="small" />
+                                                <Chip label={getStatusDisplay(task.status)} color={getStatusColor(task.status)} size="small" />
                                             </TableCell>
                                             <TableCell>{task.assignedTo}</TableCell>
                                             <TableCell>{task.createdBy}</TableCell>
