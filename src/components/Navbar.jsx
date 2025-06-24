@@ -46,7 +46,7 @@ const Navbar = () => {
     const handleProfileMenuClose = () => setProfileAnchorEl(null);
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
         handleProfileMenuClose();
     };
     const handleMenuClick = () => toggleSidebar();

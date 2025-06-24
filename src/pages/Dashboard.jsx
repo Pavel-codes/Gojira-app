@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSidebar } from '../context/SidebarContext';
 import { useUsers } from '../context/UsersContext';
+import { useCreate } from '../context/CreateContext';
 import {
     Container,
     Grid,
@@ -41,8 +42,8 @@ function Dashboard() {
     const { user, orgName } = useAuth();
     const { isSidebarOpen } = useSidebar();
     const userId = user.sub;
-
-    const [tasks, setTasks] = useState(initialTasks);
+    const { tasks, setTasks, handleSaveTask } = useCreate();
+    // const [tasks, setTasks] = useState(initialTasks);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const { logout } = useAuth();
@@ -85,30 +86,19 @@ function Dashboard() {
         setIsModalOpen(true);
     };
 
-    const handleSaveTask = (updatedTask) => {
-        setTasks((prevTasks) => {
-            const newTasks = { ...prevTasks };
-            if (selectedTask) {
-                const oldStatus = selectedTask.status;
-                newTasks[oldStatus] = newTasks[oldStatus].filter(t => t.id !== selectedTask.id);
-            }
+    // const handleSaveTask = (updatedTask) => {
+    //     console.log(updatedTask);
+    //     setTasks((prevTasks) => {
+    //         const newTasks = { ...prevTasks, ...updatedTask };
+    //         return newTasks;
+    //     });
+    
+    //     setIsModalOpen(false);
+    // };
 
-            const newStatus = updatedTask.status;
-            const now = dayjs();
-            const taskToAdd = {
-                ...updatedTask,
-                id: selectedTask ? selectedTask.id : Date.now(),
-                status: newStatus,
-                creationDate: selectedTask?.creationDate || now.toISOString(),
-                dueDate: updatedTask.dueDate || now.add(7, 'day').toISOString()
-            };
-
-            newTasks[newStatus] = [...newTasks[newStatus], taskToAdd];
-            return newTasks;
-        });
-
-        setIsModalOpen(false);
-    };
+    useEffect(() => {
+        console.log("tasks: ",tasks);
+    }, [tasks]);
 
     const getPriorityColor = (priority) => {
         switch (priority) {

@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import Home from './pages/Home';
-import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Backlog from './pages/Backlog';
@@ -44,7 +43,6 @@ function App() {
                 <Router>
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    {/* <Route path="/login" element={<Login />} /> */}
                     <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/dashboard" element={<Dashboard />} />

@@ -334,26 +334,6 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [] }) {
                                         <BusinessIcon fontSize="small" />
                                         Project *
                                     </Typography>
-                                    {/* <TextField
-                                        name="project"
-                                        value={formData.project}
-                                        onChange={handleChange}
-                                        fullWidth
-                                        placeholder="Project name..."
-                                        required
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                                borderRadius: 2,
-                                                backgroundColor: '#fafafa',
-                                                '&:hover': {
-                                                    backgroundColor: '#f5f5f5'
-                                                },
-                                                '&.Mui-focused': {
-                                                    backgroundColor: '#ffffff'
-                                                }
-                                            }
-                                        }}
-                                    /> */}
                                     <FormControl fullWidth required>
                                         <Select
                                             name="projectId"

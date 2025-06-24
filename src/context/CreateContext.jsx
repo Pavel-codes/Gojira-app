@@ -20,25 +20,16 @@ export const CreateProvider = ({ children }) => {
     };
 
     const handleSaveTask = (updatedTask) => {
+        console.log("updatedTask details: ",updatedTask);
         setTasks((prevTasks) => {
-            const newTasks = { ...prevTasks };
-            if (selectedTask) {
-                const oldStatus = selectedTask.status;
-                newTasks[oldStatus] = newTasks[oldStatus].filter(t => t.id !== selectedTask.id);
-            }
-            const newStatus = updatedTask.status;
-            const taskToAdd = {
-                ...updatedTask,
-                id: selectedTask ? selectedTask.id : Date.now(),
-                status: newStatus,
-                creationDate: selectedTask ? (selectedTask.creationDate || new Date().toISOString()) : new Date().toISOString(),
-                dueDate: updatedTask.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            };
-            newTasks[newStatus] = [...newTasks[newStatus], taskToAdd];
+            const newTasks = { ...prevTasks, ...updatedTask };
+    
             return newTasks;
         });
+    
         setIsModalOpen(false);
     };
+    
 
     return (
         <CreateContext.Provider value={{

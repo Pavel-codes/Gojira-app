@@ -19,7 +19,10 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import config from '../config';
 
 const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
-const orgName = JSON.parse(sessionStorage.getItem('user'))['custom:organization'];
+let orgName = '';
+if(sessionStorage.getItem('user')){
+    orgName = JSON.parse(sessionStorage.getItem('user'))['custom:organization'];
+}
 const initialTasksArray = [];
 
 function Backlog() {
