@@ -40,10 +40,6 @@ function Backlog() {
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
-            console.log('data', data);
-            console.log('projects', projects);
-            console.log('users', users);
-
             if (data && Array.isArray(data)) {
                 const transformed = data.map(task => ({
                     id: task.taskId,
