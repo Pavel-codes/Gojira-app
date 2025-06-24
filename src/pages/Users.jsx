@@ -7,11 +7,13 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useParams } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useParams, useNavigate } from 'react-router-dom';
 import config from '../config';
 
 function Users() {
     const { orgName } = useParams();
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -181,47 +183,72 @@ function Users() {
     };
 
     return (
-        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Container maxWidth="lg" sx={{ mt: 4 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="h4">Users for Organization: {orgName}</Typography>
-                    {userGroup === 'Admins' && (
-                        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleUserDialogOpen()}>
-                            New User
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f4f5f7' }}>
+            <Container maxWidth="lg" sx={{ mt: 6, mb: 4 }}>
+                <Paper elevation={4} sx={{ p: 4, borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, pb: 2, borderBottom: '2px solid #e9ecef', gap: 2 }}>
+                        <Button
+                            variant="contained"
+                            startIcon={<ArrowBackIcon />}
+                            onClick={() => navigate('/admin')}
+                            sx={{
+                                borderRadius: 2,
+                                fontWeight: 600,
+                                px: 3,
+                                py: 1.2,
+                                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                                backgroundColor: '#1976d2',
+                                color: 'white',
+                                textTransform: 'none',
+                                '&:hover': {
+                                    backgroundColor: '#1565c0',
+                                    boxShadow: '0 6px 16px rgba(25, 118, 210, 0.18)'
+                                }
+                            }}
+                        >
+                            Return
                         </Button>
-                    )}
-                </Box>
-                {loading && <Typography>Loading...</Typography>}
-                {error && <Typography color="error">{error}</Typography>}
-                <Paper sx={{ p: 3 }}>
-                    <TableContainer>
-                        <Table>
+                        <Typography variant="h4" sx={{ fontWeight: 700, color: '#2c3e50', flex: 1, ml: 2 }}>
+                            Users for Organization: {orgName}
+                        </Typography>
+                        {userGroup === 'Admins' && (
+                            <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleUserDialogOpen()} sx={{ borderRadius: 2, fontWeight: 600, boxShadow: '0 4px 12px rgba(25, 118, 210, 0.10)' }}>
+                                New User
+                            </Button>
+                        )}
+                    </Box>
+                    {loading && <Typography sx={{ my: 2 }}>Loading...</Typography>}
+                    {error && <Typography color="error" sx={{ my: 2 }}>{error}</Typography>}
+                    <TableContainer component={Paper} sx={{ boxShadow: 2, borderRadius: 2, maxHeight: '70vh', mb: 2 }}>
+                        <Table stickyHeader>
                             <TableHead>
-                                <TableRow>
-                                    <TableCell>First Name</TableCell>
-                                    <TableCell>Last Name</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Role</TableCell>
-                                    <TableCell>Actions</TableCell>
+                                <TableRow sx={{ bgcolor: '#f8f9fa' }}>
+                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>First Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Last Name</TableCell>
+                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Email</TableCell>
+                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Role</TableCell>
+                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {users.map((user, index) => (
-                                    <TableRow key={user.userId || `${user.email}-${index}`}>
+                                    <TableRow key={user.userId || `${user.email}-${index}`} hover sx={{ '&:hover': { backgroundColor: '#f5f7fa' } }}>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.family_name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
-                                        <TableCell>{user.role}</TableCell>
+                                        <TableCell>
+                                            <Box sx={{ display: 'inline-block', px: 1.5, py: 0.5, borderRadius: 1, bgcolor: '#e3f2fd', color: '#1976d2', fontWeight: 500, fontSize: '0.9rem' }}>{user.role}</Box>
+                                        </TableCell>
                                         <TableCell>
                                             {userGroup === 'Admins' && (
-                                                <>
-                                                    <IconButton size="small" color="primary" onClick={() => handleUserDialogOpen(user)}>
-                                                        <EditIcon />
+                                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                                    <IconButton size="small" color="primary" onClick={() => handleUserDialogOpen(user)} sx={{ bgcolor: '#e3f2fd', borderRadius: 2, '&:hover': { bgcolor: '#1976d2', color: 'white' } }}>
+                                                        <EditIcon fontSize="small" />
                                                     </IconButton>
-                                                    <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.userId)}>
-                                                        <DeleteIcon />
+                                                    <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.userId)} sx={{ bgcolor: '#ffebee', borderRadius: 2, '&:hover': { bgcolor: '#f44336', color: 'white' } }}>
+                                                        <DeleteIcon fontSize="small" />
                                                     </IconButton>
-                                                </>
+                                                </Box>
                                             )}
                                         </TableCell>
                                     </TableRow>
@@ -232,12 +259,13 @@ function Users() {
                 </Paper>
 
                 {/* User Dialog */}
-                <Dialog open={userDialogOpen} onClose={handleUserDialogClose} maxWidth="sm" fullWidth>
-                    <DialogTitle variant="h6">
+                <Dialog open={userDialogOpen} onClose={handleUserDialogClose} maxWidth="sm" fullWidth
+                    PaperProps={{ sx: { borderRadius: 3, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' } }}>
+                    <DialogTitle variant="h6" sx={{ fontWeight: 600, borderBottom: '2px solid #e9ecef', pb: 2 }}>
                         {isEditing ? 'Edit User' : 'Create New User'}
                     </DialogTitle>
 
-                    <DialogContent>
+                    <DialogContent sx={{ pt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
                             label="First Name"
                             fullWidth
@@ -245,6 +273,7 @@ function Users() {
                             value={newUser.name}
                             onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                             required
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                         <TextField
                             label="Last Name"
@@ -253,6 +282,7 @@ function Users() {
                             value={newUser.family_name}
                             onChange={(e) => setNewUser({ ...newUser, family_name: e.target.value })}
                             required
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                         <TextField
                             label="Email"
@@ -262,6 +292,7 @@ function Users() {
                             value={newUser.email}
                             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                             required
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                         <TextField
                             select
@@ -271,6 +302,7 @@ function Users() {
                             value={newUser.role}
                             onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                             SelectProps={{ native: true }}
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         >
                             {availableRoles.map((role) => (
                                 <option key={role} value={role}>{role}</option>
@@ -283,6 +315,7 @@ function Users() {
                             value={newUser.username}
                             onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
                             required
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                         <TextField
                             label="Temporary Password"
@@ -292,11 +325,12 @@ function Users() {
                             value={newUser.temporaryPassword}
                             onChange={(e) => setNewUser({ ...newUser, temporaryPassword: e.target.value })}
                             required
+                            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
                         />
                     </DialogContent>
 
-                    <DialogActions>
-                        <Button onClick={handleUserDialogClose}>Cancel</Button>
+                    <DialogActions sx={{ p: 3, pt: 1 }}>
+                        <Button onClick={handleUserDialogClose} sx={{ borderRadius: 2, fontWeight: 500 }}>Cancel</Button>
                         <Button
                             onClick={isEditing ? handleUpdateUser : handleCreateUser}
                             variant="contained"
@@ -307,6 +341,7 @@ function Users() {
                                 !newUser.username ||
                                 !newUser.temporaryPassword
                             }
+                            sx={{ borderRadius: 2, fontWeight: 600, boxShadow: '0 4px 12px rgba(25, 118, 210, 0.10)' }}
                         >
                             {isEditing ? 'Save Changes' : 'Create'}
                         </Button>

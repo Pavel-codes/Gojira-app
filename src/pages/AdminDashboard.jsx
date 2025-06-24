@@ -457,7 +457,6 @@ function AdminDashboard() {
                                         <TableRow sx={{ bgcolor: '#f8f9fa' }}>
                                             <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Organization</TableCell>
                                             <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Users</TableCell>
-                                            <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Created</TableCell>
                                             <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Status</TableCell>
                                             <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Actions</TableCell>
                                         </TableRow>
@@ -497,11 +496,6 @@ function AdminDashboard() {
                                                             fontWeight: 500
                                                         }}
                                                     />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" sx={{ color: '#6c757d' }}>
-                                                        {org.createdAt ? new Date(org.createdAt).toLocaleDateString() : 'N/A'}
-                                                    </Typography>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Chip 
