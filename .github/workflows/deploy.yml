@@ -19,4 +19,4 @@ jobs:
         run: npm run build
 
       - name: Deploy to S3
-        run: aws s3 sync build/ s3://gojira-website-233263751949/ --delete
+        run: aws s3 sync dist/ s3://gojira-website-233263751949/ --delete
