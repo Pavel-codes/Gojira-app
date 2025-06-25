@@ -79,7 +79,7 @@ const Navbar = () => {
                 </Typography>
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Button color="inherit" sx={activeNavButtonStyle}>MY WORK<ArrowDown sx={arrowIcon} /></Button>
+                    {/* <Button color="inherit" sx={activeNavButtonStyle}>MY WORK<ArrowDown sx={arrowIcon} /></Button> */}
                     <Button color="inherit" onClick={handleMenuOpen} sx={activeNavButtonStyle}>PROJECTS<ArrowDown sx={arrowIcon} /></Button>
                     <Button color="inherit" component={Link} to="/dashboard" sx={activeNavButtonStyle}>DASHBOARD</Button>
                     <Button color="inherit" onClick={handlePeopleMenuOpen} sx={activeNavButtonStyle}>PEOPLE<ArrowDown sx={arrowIcon} /></Button>

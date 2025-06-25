@@ -29,8 +29,8 @@ const Sidebar = () => {
         : [
             { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
             { text: 'Backlog', icon: <ListAltIcon />, path: '/backlog' },
-            { text: 'Board', icon: <AssignmentIcon />, path: '/board' },
-            { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
+            // { text: 'Board', icon: <AssignmentIcon />, path: '/board' },
+            // { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
             { text: 'Team', icon: <PeopleIcon />, path: '/team' },
             { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
         ];
