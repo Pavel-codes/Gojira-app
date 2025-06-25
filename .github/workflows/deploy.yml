@@ -1,0 +1,22 @@
+name: Deploy React App to S3 from Cloud9
+
+on:
+  push:
+    branches: [prod]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Deploy to S3
+        run: aws s3 sync build/ s3://gojira-website-233263751949/ --delete
