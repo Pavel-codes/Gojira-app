@@ -386,7 +386,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                                         >
                                             <MenuItem value="">None</MenuItem>
                                             {tasks.map((t) => (
-                                                <MenuItem key={t.id} value={t.id}>{t.title}</MenuItem>
+                                                <MenuItem key={t.id} value={t.id}>{t.title || t.taskName || 'Untitled Task'}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
