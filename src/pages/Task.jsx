@@ -135,7 +135,7 @@ function Task() {
                     console.warn('No newComment returned in response.');
                 }
 
-                setCommentInput('');
+            setCommentInput('');
 
             } catch (error) {
                 console.error('Error adding comment:', error);
@@ -182,7 +182,7 @@ function Task() {
             
             // Update the local task state with the new data
             setTask(editData);
-            setEditing(false);
+        setEditing(false);
             
             // Optionally show a success message or refresh the task data
             // You could add a success notification here
@@ -524,32 +524,32 @@ function Task() {
                                     />
                                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
                                         <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}>
-                                            <InputLabel>Priority</InputLabel>
-                                            <Select
-                                                name="priority"
-                                                value={editData.priority}
-                                                label="Priority"
-                                                onChange={handleEditChange}
-                                            >
-                                                <MenuItem value="Low">Low</MenuItem>
-                                                <MenuItem value="Medium">Medium</MenuItem>
-                                                <MenuItem value="High">High</MenuItem>
-                                                <MenuItem value="Critical">Critical</MenuItem>
-                                            </Select>
-                                        </FormControl>
+                                        <InputLabel>Priority</InputLabel>
+                                        <Select
+                                            name="priority"
+                                            value={editData.priority}
+                                            label="Priority"
+                                            onChange={handleEditChange}
+                                        >
+                                            <MenuItem value="Low">Low</MenuItem>
+                                            <MenuItem value="Medium">Medium</MenuItem>
+                                            <MenuItem value="High">High</MenuItem>
+                                            <MenuItem value="Critical">Critical</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                         <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2 } }}>
-                                            <InputLabel>Status</InputLabel>
-                                            <Select
-                                                name="status"
-                                                value={editData.status}
-                                                label="Status"
-                                                onChange={handleEditChange}
-                                            >
-                                                <MenuItem value="todo">To Do</MenuItem>
-                                                <MenuItem value="inProgress">In Progress</MenuItem>
-                                                <MenuItem value="done">Done</MenuItem>
-                                            </Select>
-                                        </FormControl>
+                                        <InputLabel>Status</InputLabel>
+                                        <Select
+                                            name="status"
+                                            value={editData.status}
+                                            label="Status"
+                                            onChange={handleEditChange}
+                                        >
+                                            <MenuItem value="todo">To Do</MenuItem>
+                                            <MenuItem value="inProgress">In Progress</MenuItem>
+                                            <MenuItem value="done">Done</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                     </Box>
                                     <TextField
                                         label="Due Date"

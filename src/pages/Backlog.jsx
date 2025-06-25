@@ -105,8 +105,11 @@ function Backlog() {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'todo': return 'default';
+            case 'To do': return 'default';
             case 'inprogress': return 'info';
+            case 'In Progress': return 'info';
             case 'done': return 'success';
+            case 'Done': return 'success';
             default: return 'default';
         }
     };
