@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
+
 import Home from './pages/Home';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -14,13 +15,14 @@ import AuthRedirectHandler from './pages/AuthRedirectHandler.jsx';
 import ProtectedRoute from './components/ProtectedRoute';
 import Users from './pages/Users';
 import Team from './pages/Team.jsx';
+
 import { AuthProvider } from './context/AuthContext';
 import { CreateProvider } from './context/CreateContext';
 import { SidebarProvider } from './context/SidebarContext';
 import { ProjectProvider } from './context/ProjectContext';
 import { UsersProvider } from './context/UsersContext';
 
-
+// 🔵 MUI Theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -33,6 +35,15 @@ const theme = createTheme({
 });
 
 function App() {
+  // 🔁 Handle Cognito redirect to /index.html with token hash
+  if (
+    window.location.pathname === '/index.html' &&
+    window.location.hash.includes('id_token=')
+  ) {
+    const newPath = '/auth-redirect' + window.location.hash;
+    window.history.replaceState(null, '', newPath);
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
@@ -43,16 +54,19 @@ function App() {
                 <Router>
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/dashboard"
+                    <Route path="/auth-redirect" element={<AuthRedirectHandler />} />
+
+                    {/* ✅ Protected Dashboard */}
+                    <Route
+                      path="/dashboard"
                       element={
                         <ProtectedRoute onlyUser>
                           <Dashboard />
                         </ProtectedRoute>
                       }
                     />
+
                     <Route path="/backlog" element={<Backlog />} />
                     <Route path="/task/:id" element={<Task />} />
                     <Route path="/reports" element={<Reports />} />
@@ -60,14 +74,20 @@ function App() {
                     <Route path="/projects" element={<Projects />} />
                     <Route path="/profile" element={<UserProfile />} />
                     <Route path="/settings" element={<UserSettings />} />
-                    <Route path="/admindashboard"
+
+                    {/* ✅ Protected Admin Dashboard */}
+                    <Route
+                      path="/admindashboard"
                       element={
                         <ProtectedRoute onlyAdmin>
                           <AdminDashboard />
                         </ProtectedRoute>
                       }
                     />
+
                     <Route path="/users/:orgName" element={<Users />} />
+
+                    {/* Catch-all fallback */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Router>
