@@ -36,7 +36,7 @@ function Task() {
     };
 
     let username = JSON.parse(sessionStorage.getItem('user'))['cognito:username'];
-
+    console.log('Username:', username);
     const fetchTaskFromAPI = async () => {
         setLoading(true);
         setError(null);

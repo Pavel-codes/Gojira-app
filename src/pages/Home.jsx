@@ -24,7 +24,6 @@ function Home() {
             window.location.href = cognitoUrl;
         }
     }, [navigate]);
-    console.log('Home');
     return null;
 }
 
