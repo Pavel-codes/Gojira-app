@@ -69,7 +69,7 @@ function Backlog() {
                     comments: task.comments || [],
                     projectId: task.projectId,
                     orgName: task.orgName,
-                    orgId: task.orgId
+                   
                 }));
                 setTasks(transformed);
             } else {
