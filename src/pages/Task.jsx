@@ -68,7 +68,7 @@ function Task() {
                         dueDate: taskData.dueDate,
                         assignedTo: users.find(user => user.userId === taskData.assignedTo)?.username || 'Unassigned',
                         createdBy: users.find(user => user.userId === taskData.createdBy)?.username || 'Unknown',
-                        projectName: taskData.projectName || 'Unknown Project',
+                        projectName: projects.find(project => project.id === taskData.projectId)?.name || 'Unknown Project',
                         comments: taskData.comments || [],
                         projectId: taskData.projectId,
                         orgName: taskData.orgName,

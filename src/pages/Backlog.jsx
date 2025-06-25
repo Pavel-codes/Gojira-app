@@ -63,7 +63,7 @@ function Backlog() {
                     dueDate: task.dueDate,
                     assignedTo: users.find(user => user.userId === task.assignedTo)?.username || 'Unassigned',
                     createdBy: users.find(user => user.userId === task.createdBy)?.username || 'Unknown',
-                    projectName: task.projectName || 'Unknown Project',
+                    projectName: projects.find(project => project.id === task.projectId)?.name || 'Unknown Project',
                     comments: task.comments || [],
                     projectId: task.projectId,
                     orgName: task.orgName,
