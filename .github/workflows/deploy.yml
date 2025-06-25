@@ -2,7 +2,7 @@ name: Deploy React App to S3 from Cloud9
 
 on:
   push:
-    branches: [prod]
+    branches: [main]
 
 jobs:
   deploy:
@@ -18,5 +18,8 @@ jobs:
       - name: Build React app
         run: npm run build
 
+      - name: Verify dist directory
+        run: ls -la dist/
+
       - name: Deploy to S3
-        run: aws s3 sync build/ s3://gojira-website-233263751949/ --delete
+        run: aws s3 sync dist/ s3://gojira-website-233263751949/ --delete
