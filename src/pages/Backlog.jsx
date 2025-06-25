@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box,
-    Chip, Alert, CircularProgress
+    Chip, Alert, CircularProgress, TextField, InputAdornment
 } from '@mui/material';
 import dayjs from 'dayjs';
 import Sidebar from '../components/Sidebar';
@@ -16,6 +16,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import EventIcon from '@mui/icons-material/Event';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SearchIcon from '@mui/icons-material/Search';
 import config from '../config';
 
 const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
@@ -28,30 +29,31 @@ function Backlog() {
     const [tasks, setTasks] = useState(initialTasksArray);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    
+    const [searchTerm, setSearchTerm] = useState('');
+
     // Get organization name from session storage inside the component
     const getOrgName = () => {
-        if(sessionStorage.getItem('user')){
+        if (sessionStorage.getItem('user')) {
             const user = JSON.parse(sessionStorage.getItem('user'));
             return user['custom:organization'] || '';
         }
         return '';
     };
-    
+
     const orgName = getOrgName();
 
     const fetchTasksFromAPI = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            
+
             const response = await fetch(`${apiUrl}?orgName=${encodeURIComponent(orgName)} `, {
                 method: 'GET',
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
-            
+
             if (data && Array.isArray(data)) {
                 const transformed = data.map(task => ({
                     id: task.taskId,
@@ -123,9 +125,9 @@ function Backlog() {
             <Navbar />
             <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f4f5f7' }}>
                 <Sidebar />
-                <Box sx={{ 
-                    flex: 1, 
-                    p: 4, 
+                <Box sx={{
+                    flex: 1,
+                    p: 4,
                     overflow: 'auto',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     marginLeft: isSidebarOpen ? '240px' : '0',
@@ -134,6 +136,23 @@ function Backlog() {
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <AssignmentIcon /> Backlog
                         </Typography>
+
+                        {/* Search Input */}
+                        <TextField
+                            variant="outlined"
+                            size="small"
+                            placeholder="Search tasks..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                            sx={{ mb: 2, width: '100%', maxWidth: 400 }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
 
                         {loading && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
@@ -162,7 +181,18 @@ function Backlog() {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {tasks.map((task) => (
+                                    {(searchTerm
+                                        ? tasks.filter(task => {
+                                            const term = searchTerm.toLowerCase();
+                                            return (
+                                                task.title?.toLowerCase().includes(term) ||
+                                                task.description?.toLowerCase().includes(term) ||
+                                                task.assignedTo?.toLowerCase().includes(term) ||
+                                                task.projectName?.toLowerCase().includes(term)
+                                            );
+                                        })
+                                        : tasks
+                                    ).map((task) => (
                                         <TableRow key={task.id} hover>
                                             <TableCell>
                                                 <Link to={`/task/${task.id}`} style={{ textDecoration: 'none' }}>
