@@ -9,7 +9,7 @@ const config = {
         users: '/Users',
         projects: '/Project',
         organizations: '/Organization',
-        comments: '/Tasks/Comments',
+        comments: '/Tasks/Comment/',
         tasksUser: '/Tasks/User',
         usersUser: '/Users/User',
         usersAll: '/Users/All/',

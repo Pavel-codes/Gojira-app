@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box,
     Chip, Alert, CircularProgress
@@ -19,10 +19,6 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import config from '../config';
 
 const apiUrl = config.apiBaseUrl + config.endpoints.tasks;
-let orgName = '';
-if(sessionStorage.getItem('user')){
-    orgName = JSON.parse(sessionStorage.getItem('user'))['custom:organization'];
-}
 const initialTasksArray = [];
 
 function Backlog() {
@@ -32,17 +28,30 @@ function Backlog() {
     const [tasks, setTasks] = useState(initialTasksArray);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    
+    // Get organization name from session storage inside the component
+    const getOrgName = () => {
+        if(sessionStorage.getItem('user')){
+            const user = JSON.parse(sessionStorage.getItem('user'));
+            return user['custom:organization'] || '';
+        }
+        return '';
+    };
+    
+    const orgName = getOrgName();
 
-    const fetchTasksFromAPI = async () => {
+    const fetchTasksFromAPI = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
+            
             const response = await fetch(`${apiUrl}?orgName=${encodeURIComponent(orgName)} `, {
                 method: 'GET',
             });
 
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
+            
             if (data && Array.isArray(data)) {
                 const transformed = data.map(task => ({
                     id: task.taskId,
@@ -54,7 +63,7 @@ function Backlog() {
                     dueDate: task.dueDate,
                     assignedTo: users.find(user => user.userId === task.assignedTo)?.username || 'Unassigned',
                     createdBy: users.find(user => user.userId === task.createdBy)?.username || 'Unknown',
-                    projectName: projects.find(project => project.id === task.projectId)?.name || 'Unknown Project',
+                    projectName: task.projectName || 'Unknown Project',
                     comments: task.comments || [],
                     projectId: task.projectId,
                     orgName: task.orgName,
@@ -70,14 +79,20 @@ function Backlog() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [users, orgName]);
 
     useEffect(() => {
-        fetchTasksFromAPI();
-    }, []);
+        // Only fetch tasks if we have a valid organization and users data
+        if (orgName && users.length > 0) {
+            fetchTasksFromAPI();
+        } else {
+            console.log('Waiting for organization and users to load...', { orgName, usersLength: users.length });
+        }
+    }, [users, orgName, fetchTasksFromAPI]);
 
     const getPriorityColor = (priority) => {
         switch (priority?.toLowerCase()) {
+            case 'critical': return 'error';
             case 'high': return 'error';
             case 'medium': return 'warning';
             case 'low': return 'success';

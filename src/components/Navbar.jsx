@@ -3,7 +3,6 @@ import {
     MenuItem, ListSubheader, Divider, ListItemIcon, ListItemText, Avatar, Chip, Tooltip
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -11,7 +10,6 @@ import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/PersonOutline';
 import ArrowDown from '@mui/icons-material/ArrowDropDown';
-import NotificationsIcon from '@mui/icons-material/NotificationsOutlined';
 import HelpIcon from '@mui/icons-material/HelpOutline';
 
 import { Link, useNavigate } from 'react-router-dom';
@@ -100,19 +98,7 @@ const Navbar = () => {
 
                 <Box sx={{ flexGrow: 1 }} />
 
-                <Paper component="form"
-                    sx={{
-                        p: '4px 8px', display: 'flex', alignItems: 'center',
-                        width: { xs: 200, md: 300 }, mr: 2, borderRadius: 3,
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: '1px solid #e0e0e0',
-                        '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.12)', borderColor: '#1976d2' }
-                    }}>
-                    <SearchIcon sx={{ color: '#666', mr: 1 }} />
-                    <InputBase sx={{ ml: 1, flex: 1, fontSize: '0.875rem' }} placeholder="Search..." />
-                </Paper>
-
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Tooltip title="Notifications"><IconButton sx={iconStyle}><NotificationsIcon /></IconButton></Tooltip>
                     <Tooltip title="Help"><IconButton sx={iconStyle}><HelpIcon /></IconButton></Tooltip>
                     <Tooltip title="Profile"><IconButton onClick={handleProfileMenuOpen} sx={{ ml: 1, '&:hover': { transform: 'scale(1.05)', transition: 'transform 0.2s ease' } }}>
                         <Avatar sx={avatarStyle} src="https://www.gravatar.com/avatar?d=mp" />
