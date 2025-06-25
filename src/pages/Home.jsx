@@ -25,6 +25,7 @@ function Home() {
         }
     }, [navigate]);
     console.log('Home');
+    console.log("user");
     return null;
 }
 
