@@ -12,6 +12,7 @@ const config = {
         comments: '/Tasks/Comments',
         tasksUser: '/Tasks/User',
         usersUser: '/Users/User',
+        usersAll: '/Users/All/',
     },
 };
 

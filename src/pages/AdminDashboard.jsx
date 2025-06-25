@@ -23,10 +23,11 @@ import config from '../config';
 function AdminDashboard() {
     const { isSidebarOpen } = useSidebar();
     const organizationsApiUrl = config.apiBaseUrl + config.endpoints.organizations;
-    const usersApiUrl = config.apiBaseUrl + config.endpoints.users; // Assuming a users endpoint
+    const usersApiUrl = config.apiBaseUrl + config.endpoints.usersAll;
     const addUserApiUrl = config.apiBaseUrl + config.endpoints.usersUser;
     
     const [organizations, setOrganizations] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     // State for Organization Dialog
@@ -52,6 +53,18 @@ function AdminDashboard() {
     const [orgToDelete, setOrgToDelete] = useState(null);
     const [deleteLoading, setDeleteLoading] = useState(false);
 
+    const fetchUsersFromAPI = async () => {
+        try {
+            const response = await fetch(usersApiUrl);
+            if (!response.ok) throw new Error(`Users fetch failed: ${response.status}`);
+            const data = await response.json();
+            setAllUsers(data);
+        } catch (err) {
+            console.error('Error fetching users:', err);
+            setError('Failed to fetch users');
+        }
+    };
+
     const fetchOrganizationsFromAPI = async () => {
         try {
             setLoading(true);
@@ -67,8 +80,22 @@ function AdminDashboard() {
         }
     };
 
+    // Function to get users count for a specific organization
+    const getUsersCountForOrg = (orgName) => {
+        return allUsers.filter(user => user.orgName === orgName).length;
+    };
+
+    // Calculate total users across all organizations
+    const totalUsers = allUsers.length;
+
     useEffect(() => {
-        fetchOrganizationsFromAPI();
+        const fetchData = async () => {
+            await Promise.all([
+                fetchOrganizationsFromAPI(),
+                fetchUsersFromAPI()
+            ]);
+        };
+        fetchData();
     }, []);
 
     // Handlers for Organization Dialog
@@ -108,7 +135,10 @@ function AdminDashboard() {
                 throw new Error(`Failed to create organization. Status: ${response.status}`);
             }
 
-            await fetchOrganizationsFromAPI(); // Re-fetch to get new organization
+            await Promise.all([
+                fetchOrganizationsFromAPI(),
+                fetchUsersFromAPI()
+            ]); // Re-fetch both organizations and users
         } catch (err) {
             console.error('Error creating organization:', err);
             setError('Failed to create organization');
@@ -140,7 +170,10 @@ function AdminDashboard() {
             if (!response.ok) {
                 throw new Error(`Failed to update organization. Status: ${response.status}`);
             }
-            await fetchOrganizationsFromAPI(); // Re-fetch to get updated data
+            await Promise.all([
+                fetchOrganizationsFromAPI(),
+                fetchUsersFromAPI()
+            ]); // Re-fetch both organizations and users
         } catch (err) {
             console.error('Error updating organization:', err);
             setError('Failed to update organization');
@@ -158,7 +191,10 @@ function AdminDashboard() {
             if (!response.ok) {
                 throw new Error(`Failed to delete organization. Status: ${response.status}`);
             }
-            await fetchOrganizationsFromAPI();
+            await Promise.all([
+                fetchOrganizationsFromAPI(),
+                fetchUsersFromAPI()
+            ]); // Re-fetch both organizations and users
             setDeleteDialogOpen(false); // Close dialog
             setOrgToDelete(null); // Clear the ID
         } catch (err) {
@@ -225,8 +261,11 @@ function AdminDashboard() {
                 throw new Error(`Failed to create user. Status: ${response.status}. Message: ${errorData.message || 'Unknown error'}`);
             }
 
-            // Optionally re-fetch organizations to update user count if the API updates the org.users array
-            await fetchOrganizationsFromAPI();
+            // Re-fetch both organizations and users to update user count
+            await Promise.all([
+                fetchOrganizationsFromAPI(),
+                fetchUsersFromAPI()
+            ]);
             handleUserDialogClose();
         } catch (err) {
             console.error('Error creating user:', err);
@@ -234,12 +273,10 @@ function AdminDashboard() {
         }
     };
 
-    const totalUsers = organizations.reduce((sum, org) => sum + (org.users?.length || 0), 0);
     const activeOrgs = organizations.length;
 
     // Filter out duplicate organization names for the dropdown
     const uniqueOrganizationNames = Array.from(new Set(organizations.map(org => org.orgName)));
-
     return (
         <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Navbar />
@@ -488,7 +525,7 @@ function AdminDashboard() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <Chip 
-                                                        label={org.users?.length || 0} 
+                                                        label={getUsersCountForOrg(org.orgName)} 
                                                         size="small" 
                                                         sx={{ 
                                                             bgcolor: '#e3f2fd',
@@ -791,7 +828,7 @@ function AdminDashboard() {
                                                 {orgToDelete.orgName}
                                             </Typography>
                                             <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-                                                Users: {orgToDelete.users?.length || 0}
+                                                Users: {getUsersCountForOrg(orgToDelete.orgName)}
                                             </Typography>
                                             <Typography variant="body2" sx={{ color: '#666' }}>
                                                 Created: {orgToDelete.createdAt ? new Date(orgToDelete.createdAt).toLocaleDateString() : 'N/A'}

@@ -34,7 +34,7 @@ function AuthRedirectHandler() {
         navigate(destination, { replace: true });
       } catch (err) {
         console.error('Token decode failed:', err);
-        navigate('/login', { replace: true }); // only hit if something goes wrong decoding
+        navigate('/', { replace: true }); // only hit if something goes wrong decoding
       }
     } else {
       console.warn("Missing id_token in redirect URL.");
