@@ -22,7 +22,7 @@ function Users() {
     const [editingId, setEditingId] = useState(null);
     const [userGroup, setUserGroup] = useState('Admins'); // optionally get this from JWT
 
-    const availableRoles = ['User', 'Developer', 'Admin'];
+    const availableRoles = ['Manager', 'Developer', 'Admin'];
 
     const [newUser, setNewUser] = useState({
         name: '',
