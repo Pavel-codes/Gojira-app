@@ -45,6 +45,7 @@ export const ProjectProvider = ({ children }) => {
                     tag: project.projectTag,
                     manager: project.projectManager,
                     description: project.description,
+                    status: project.projectStatus || 'WIP',
                     orgName: project.orgName,
                 }));
                 setProjects(transformed);
@@ -77,6 +78,7 @@ export const ProjectProvider = ({ children }) => {
             projectTag: newProject.tag || newProject.name.slice(0, 4).toUpperCase(),
             projectManager: newProject.manager,
             description: newProject.description,
+            projectStatus: 'WIP',
             orgName: orgName, // ✅ this is what your Lambda expects
         };
 

@@ -27,20 +27,21 @@ import FlagIcon from '@mui/icons-material/Flag';
 import DescriptionIcon from '@mui/icons-material/Description';
 import BusinessIcon from '@mui/icons-material/Business';
 import { useProject } from '../context/ProjectContext';
+import { useAuth } from '../context/AuthContext';
 import config from '../config';
 
 const priorities = ['Low', 'Medium', 'High', 'Critical'];
 const statuses = ['To Do', 'In Progress', 'Done'];
-const userName = JSON.parse(sessionStorage.getItem('user'));
-let fullName = '';
-let organization = '';
-if (userName && userName.username !== 'admin') {
-    fullName = userName.name + ' ' + userName.family_name;
-    organization = userName['custom:organization'];
-}
-
 
 function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode = 'create' }) {
+    const { user } = useAuth();
+    const { projects } = useProject();
+    
+    // Get user information from AuthContext - handle both JWT and profile data
+    const userProfile = user?.profile || user;
+    const fullName = userProfile ? `${userProfile.name || ''} ${userProfile.family_name || ''}`.trim() : '';
+    const organization = user?.['custom:organization'] || user?.organization || userProfile?.organization || '';
+    
     const initialFormData = {
         taskName: '',
         description: '',
@@ -50,18 +51,21 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
         projectId: '',
         orgName: organization,
         parentTask: '',
-        createdBy: userName?.sub || 'admin',
+        createdBy: user?.sub || 'admin',
         assignedTo: '',
         creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     };
     const [formData, setFormData] = useState(initialFormData);
-    const { projects } = useProject();
 
     useEffect(() => {
         if (open && mode === 'create') {
-            setFormData(initialFormData);
+            setFormData({
+                ...initialFormData,
+                orgName: organization,
+                createdBy: user?.sub || 'admin'
+            });
         }
-    }, [open, mode]);
+    }, [open, mode, user, organization]);
 
     useEffect(() => {
         if (task && mode === 'edit') {
@@ -79,12 +83,25 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                 projectId: task.projectId || '',
                 orgName: task.orgName || organization,
                 parentTask: task.parentTask || '',
-                createdBy: task.createdBy || userName?.sub || 'admin',
+                createdBy: task.createdBy || user?.sub || 'admin',
                 assignedTo: task.assignedTo || '',
                 creationDate: task.creationDate || new Date().toISOString()
             });
         }
-    }, [task, mode]);
+    }, [task, mode, user, organization]);
+
+    // Debug logging for user data
+    useEffect(() => {
+        if (open) {
+            console.log('TaskModal - User data:', {
+                user,
+                userProfile,
+                fullName,
+                organization,
+                users: users.length
+            });
+        }
+    }, [open, user, userProfile, fullName, organization, users]);
     
 
     const handleChange = (e) => {
@@ -500,7 +517,14 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                                         Created By *
                                     </Typography>
                                     <FormControl fullWidth required>
-                                        <Typography variant="body2" sx={{ color: '#6c757d' }}>{fullName}</Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 1, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+                                            <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', backgroundColor: '#1976d2' }}>
+                                                {fullName ? (userProfile?.name?.[0] || userProfile?.family_name?.[0] || 'U') : (user?.username?.[0] || 'A')}
+                                            </Avatar>
+                                            <Typography variant="body2" sx={{ color: '#333', fontWeight: 500 }}>
+                                                {fullName || (user?.username === 'admin' ? 'Admin' : user?.username || user?.email || 'Unknown User')}
+                                            </Typography>
+                                        </Box>
                                     </FormControl>
                                 </Box>
 
@@ -527,13 +551,13 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                                                 backgroundColor: '#ffffff'
                                             }}
                                         >
-                                            {users.map((user) => (
-                                                <MenuItem key={user.userId} value={user.userId}>
+                                            {users.map((userItem) => (
+                                                <MenuItem key={userItem.userId} value={userItem.userId}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                         <Avatar sx={{ width: 20, height: 20, fontSize: '0.75rem' }}>
-                                                            {user.name?.[0]}{user.family_name?.[0]}
+                                                            {userItem.name?.[0]}{userItem.family_name?.[0]}
                                                         </Avatar>
-                                                        {user.name} {user.family_name}
+                                                        {userItem.name} {userItem.family_name}
                                                     </Box>
                                                 </MenuItem>
                                             ))}
