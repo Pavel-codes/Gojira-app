@@ -140,7 +140,9 @@ function UserSettings() {
                                                     fullWidth
                                                     label="First Name"
                                                     value={settings.name || ''}
-                                                    onChange={handleInputChange('name')}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="First name cannot be changed"
                                                 />
                                             </Grid>
                                             <Grid item xs={12} sm={6}>
@@ -148,7 +150,9 @@ function UserSettings() {
                                                     fullWidth
                                                     label="Last Name"
                                                     value={settings.family_name || ''}
-                                                    onChange={handleInputChange('family_name')}
+                                                    disabled
+                                                    InputProps={{ sx: disabledFieldStyle }}
+                                                    helperText="Last name cannot be changed"
                                                 />
                                             </Grid>
                                             <Grid item xs={12} sm={6}>
@@ -192,11 +196,6 @@ function UserSettings() {
                                                 />
                                             </Grid>
                                         </Grid>
-                                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                                            <Button variant="contained" color="primary" onClick={handleSave}>
-                                                Save Changes
-                                            </Button>
-                                        </Box>
                                     </Paper>
                                 </Grid>
                             </Grid>

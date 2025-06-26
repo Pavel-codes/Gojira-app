@@ -243,6 +243,7 @@ const Projects = () => {
             case 'completed': return '#2196f3';
             case 'on hold': return '#ff9800';
             case 'cancelled': return '#f44336';
+            case 'WIP': return '#9c27b0';
             default: return '#757575';
         }
     };
