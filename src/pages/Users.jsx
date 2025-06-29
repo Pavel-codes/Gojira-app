@@ -227,7 +227,6 @@ function Users() {
                                     <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Last Name</TableCell>
                                     <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Email</TableCell>
                                     <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Role</TableCell>
-                                    <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -238,18 +237,6 @@ function Users() {
                                         <TableCell>{user.email}</TableCell>
                                         <TableCell>
                                             <Box sx={{ display: 'inline-block', px: 1.5, py: 0.5, borderRadius: 1, bgcolor: '#e3f2fd', color: '#1976d2', fontWeight: 500, fontSize: '0.9rem' }}>{user.role}</Box>
-                                        </TableCell>
-                                        <TableCell>
-                                            {userGroup === 'Admins' && (
-                                                <Box sx={{ display: 'flex', gap: 1 }}>
-                                                    <IconButton size="small" color="primary" onClick={() => handleUserDialogOpen(user)} sx={{ bgcolor: '#e3f2fd', borderRadius: 2, '&:hover': { bgcolor: '#1976d2', color: 'white' } }}>
-                                                        <EditIcon fontSize="small" />
-                                                    </IconButton>
-                                                    <IconButton size="small" color="error" onClick={() => handleDeleteUser(user.userId)} sx={{ bgcolor: '#ffebee', borderRadius: 2, '&:hover': { bgcolor: '#f44336', color: 'white' } }}>
-                                                        <DeleteIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Box>
-                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}

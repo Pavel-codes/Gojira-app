@@ -16,6 +16,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Link, useLocation } from 'react-router-dom';
 import { useSidebar } from '../context/SidebarContext';
 import { useAuth } from '../context/AuthContext';
+import GoJiraLogo from '../assets/GoJira.png';
 
 const sidebarWidth = 240;
 
@@ -157,8 +158,23 @@ const Sidebar = () => {
                 right: 0,
                 p: 2,
                 borderTop: '1px solid #1565c0',
-                bgcolor: '#1976d2'
+                bgcolor: '#1976d2',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 1
             }}>
+                <Box
+                    component="img"
+                    src={GoJiraLogo}
+                    alt="GoJira Logo"
+                    sx={{
+                        width: 120,
+                        height: 'auto',
+                        filter: 'brightness(0) invert(1)',
+                        opacity: 0.8
+                    }}
+                />
                 <Typography variant="caption" sx={{ color: '#e3f2fd', display: 'block', textAlign: 'center' }}>
                     GoJira v1.0
                 </Typography>

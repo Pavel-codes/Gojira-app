@@ -28,6 +28,9 @@ export const CreateProvider = ({ children }) => {
     };
 
     const handleSaveTask = (updatedTask) => {
+        console.log('CreateContext - handleSaveTask called with:', updatedTask);
+        console.log('CreateContext - parentTask value:', updatedTask.parentTask);
+        
         setTasks((prevTasks) => {
             // Remove the task from all status arrays (in case of edit)
             const newTasks = {
@@ -35,10 +38,32 @@ export const CreateProvider = ({ children }) => {
                 inProgress: prevTasks.inProgress.filter(t => t.taskId !== updatedTask.taskId),
                 done: prevTasks.done.filter(t => t.taskId !== updatedTask.taskId),
             };
-            // Add the task to the correct status array
-            if (updatedTask.status === 'todo') newTasks.todo.push(updatedTask);
-            else if (updatedTask.status === 'inProgress') newTasks.inProgress.push(updatedTask);
-            else if (updatedTask.status === 'done') newTasks.done.push(updatedTask);
+            
+            // Create a fully updated task object with all the new data
+            const fullyUpdatedTask = {
+                ...updatedTask,
+                // Ensure all fields are preserved from the form
+                taskName: updatedTask.taskName,
+                description: updatedTask.description,
+                priority: updatedTask.priority,
+                status: updatedTask.status,
+                dueDate: updatedTask.dueDate,
+                projectId: updatedTask.projectId,
+                orgName: updatedTask.orgName,
+                parentTask: updatedTask.parentTask,
+                createdBy: updatedTask.createdBy,
+                assignedTo: updatedTask.assignedTo,
+                creationDate: updatedTask.creationDate,
+                taskId: updatedTask.taskId
+            };
+            
+            console.log('CreateContext - fullyUpdatedTask:', fullyUpdatedTask);
+            
+            // Add the fully updated task to the correct status array
+            if (updatedTask.status === 'todo') newTasks.todo.push(fullyUpdatedTask);
+            else if (updatedTask.status === 'inProgress') newTasks.inProgress.push(fullyUpdatedTask);
+            else if (updatedTask.status === 'done') newTasks.done.push(fullyUpdatedTask);
+            
             return newTasks;
         });
         setIsModalOpen(false);
@@ -64,7 +89,11 @@ export const CreateProvider = ({ children }) => {
                 onSave={handleSaveTask}
                 task={selectedTask}
                 users={users}
-                tasks={Object.values(tasks).flat()}
+                tasks={(() => {
+                    const allTasks = Object.values(tasks).flat();
+                    console.log('CreateContext - Tasks being passed to TaskModal:', allTasks);
+                    return allTasks;
+                })()}
                 mode={modalMode}
             />
         </CreateContext.Provider>

@@ -53,7 +53,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
         parentTask: '',
         createdBy: user?.sub || 'admin',
         assignedTo: '',
-        creationDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        creationDate: new Date().toISOString()
     };
     const [formData, setFormData] = useState(initialFormData);
 
@@ -100,12 +100,15 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                 organization,
                 users: users.length
             });
+            console.log('TaskModal - Tasks for parent dropdown:', tasks);
+            console.log('TaskModal - Current formData.parentTask:', formData.parentTask);
         }
-    }, [open, user, userProfile, fullName, organization, users]);
+    }, [open, user, userProfile, fullName, organization, users, tasks, formData.parentTask]);
     
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log('TaskModal - handleChange:', { name, value });
         setFormData((prev) => ({
             ...prev,
             [name]: value,
@@ -129,7 +132,7 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
         const payload = {
             ...formData,
             status: statusMap[formData.status] || formData.status,
-            creationDate: formData.creationDate ? new Date(formData.creationDate).toISOString() : new Date().toISOString(),
+            creationDate: mode === 'edit' && task?.creationDate ? task.creationDate : (formData.creationDate ? new Date(formData.creationDate).toISOString() : new Date().toISOString()),
             dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : null, // Set to null if empty
             taskId: task?.taskId || undefined, // Send taskId if it's an existing task being updated
         };
@@ -403,7 +406,9 @@ function TaskModal({ open, onClose, onSave, task, users = [], tasks = [], mode =
                                         >
                                             <MenuItem value="">None</MenuItem>
                                             {tasks.map((t) => (
-                                                <MenuItem key={t.id} value={t.id}>{t.title || t.taskName || 'Untitled Task'}</MenuItem>
+                                                <MenuItem key={t.taskId || t.id} value={t.taskId || t.id}>
+                                                    {t.taskName || t.title || 'Untitled Task'}
+                                                </MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
