@@ -171,7 +171,6 @@ const Sidebar = () => {
                     sx={{
                         width: 120,
                         height: 'auto',
-                        filter: 'brightness(0) invert(1)',
                         opacity: 0.8
                     }}
                 />
