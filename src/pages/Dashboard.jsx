@@ -342,106 +342,106 @@ function Dashboard() {
                             </Card>
                         );
                     })}
-                    {taskList.length > 2 && (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                            <button
-                                onClick={() => handleToggleExpand(status)}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: '#1976d2',
-                                    cursor: 'pointer',
-                                    fontWeight: 600,
-                                    fontSize: '0.95rem',
-                                    padding: 0,
-                                    textDecoration: 'underline',
-                                }}
-                            >
-                                {isExpanded ? 'See less' : `See more (${taskList.length - 2})`}
-                            </button>
-                        </Box>
-                    )}
-                    {taskList.length === 0 && (
+                        {taskList.length > 2 && (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                                <button
+                                    onClick={() => handleToggleExpand(status)}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#1976d2',
+                                        cursor: 'pointer',
+                                        fontWeight: 600,
+                                        fontSize: '0.95rem',
+                                        padding: 0,
+                                        textDecoration: 'underline',
+                                    }}
+                                >
+                                    {isExpanded ? 'See less' : `See more (${taskList.length - 2})`}
+                                </button>
+                            </Box>
+                        )}
+                        {taskList.length === 0 && (
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: 200,
+                                color: '#9e9e9e'
+                            }}>
+                                <Typography variant="body2" sx={{ mb: 1 }}>
+                                    No tasks in this column
+                                </Typography>
+                                <Typography variant="caption">
+                                    Tasks will appear here when added
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+                </Paper>
+            </Grid>
+        );
+    };
+
+    return (
+        <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            <Navbar />
+            <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f8f9fa' }}>
+                <Sidebar />
+                <Box sx={{
+                    flex: 1,
+                    p: 3,
+                    overflow: 'auto',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    marginLeft: isSidebarOpen ? '240px' : '0',
+                }}>
+                    <Container maxWidth={false} sx={{
+                        mt: 2,
+                        mb: 4,
+                        px: 0
+                    }}>
                         <Box sx={{
                             display: 'flex',
-                            flexDirection: 'column',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
-                            justifyContent: 'center',
-                            height: 200,
-                            color: '#9e9e9e'
+                            mb: 4,
+                            pb: 2,
+                            borderBottom: '2px solid #e9ecef'
                         }}>
-                            <Typography variant="body2" sx={{ mb: 1 }}>
-                                No tasks in this column
+                            <Typography variant="h4" sx={{
+                                fontWeight: 700,
+                                color: '#2c3e50',
+                                fontSize: { xs: '1.5rem', md: '2rem' }
+                            }}>
+                                Frontend Team Dashboard
                             </Typography>
-                            <Typography variant="caption">
-                                Tasks will appear here when added
+                            <Typography variant="body2" sx={{
+                                color: '#6c757d',
+                                backgroundColor: '#e9ecef',
+                                px: 2,
+                                py: 0.5,
+                                borderRadius: 2,
+                                fontWeight: 500
+                            }}>
+                                {allTasks.length} Total Tasks
                             </Typography>
                         </Box>
-                    )}
+                        <Grid container spacing={3} alignItems="flex-start" sx={{
+                            minHeight: 'calc(100vh - 200px)',
+                            '& .MuiGrid-item': {
+                                minWidth: 0
+                            }
+                        }}>
+                            {renderColumn('To Do', tasks.todo, 'todo')}
+                            {renderColumn('In Progress', tasks.inProgress, 'inProgress')}
+                            {renderColumn('Done', tasks.done, 'done')}
+                        </Grid>
+                    </Container>
                 </Box>
-            </Paper>
-        </Grid>
-    );
-};
-
-return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Navbar />
-        <Box sx={{ display: 'flex', flex: 1, bgcolor: '#f8f9fa' }}>
-            <Sidebar />
-            <Box sx={{
-                flex: 1,
-                p: 3,
-                overflow: 'auto',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                marginLeft: isSidebarOpen ? '240px' : '0',
-            }}>
-                <Container maxWidth={false} sx={{
-                    mt: 2,
-                    mb: 4,
-                    px: 0
-                }}>
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mb: 4,
-                        pb: 2,
-                        borderBottom: '2px solid #e9ecef'
-                    }}>
-                        <Typography variant="h4" sx={{
-                            fontWeight: 700,
-                            color: '#2c3e50',
-                            fontSize: { xs: '1.5rem', md: '2rem' }
-                        }}>
-                            Frontend Team Dashboard
-                        </Typography>
-                        <Typography variant="body2" sx={{
-                            color: '#6c757d',
-                            backgroundColor: '#e9ecef',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: 2,
-                            fontWeight: 500
-                        }}>
-                            {allTasks.length} Total Tasks
-                        </Typography>
-                    </Box>
-                    <Grid container spacing={3} alignItems="flex-start" sx={{
-                        minHeight: 'calc(100vh - 200px)',
-                        '& .MuiGrid-item': {
-                            minWidth: 0
-                        }
-                    }}>
-                        {renderColumn('To Do', tasks.todo, 'todo')}
-                        {renderColumn('In Progress', tasks.inProgress, 'inProgress')}
-                        {renderColumn('Done', tasks.done, 'done')}
-                    </Grid>
-                </Container>
             </Box>
         </Box>
-    </Box>
-);
+    );
 }
 
 export default Dashboard;
